@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { Check, MessageCircle, Star, Truck } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Check, Star, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -17,9 +17,9 @@ import {
   PROVINCES,
   SIZES,
   SIZE_GUIDE,
+  TESTIMONIALS,
   colorById,
   formatKz,
-  whatsappLink,
   type ColorId,
   type Size,
 } from "./data";
@@ -56,6 +56,15 @@ export function Store() {
     provincia: PROVINCES[0],
     municipio: "",
   });
+
+  const [heroIndex, setHeroIndex] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => setHeroIndex((i) => (i + 1) % COLORS.length), 3000);
+    return () => clearInterval(id);
+  }, []);
+
+  const heroTee = COLORS[heroIndex] ?? COLORS[0]!;
 
   const total = useMemo(() => qty * PRICE, [qty]);
   const selected = colorById(color);
@@ -105,12 +114,25 @@ export function Store() {
           <div className="reveal relative">
             <div className="absolute inset-x-6 top-10 -z-10 h-72 rounded-full bg-accent/25 blur-3xl" />
             <img
-              src={selected.image}
-              alt={`Camiseta A MÁQUINA cor ${selected.name}`}
-              width={1024}
-              height={1024}
-              className="w-full rounded-2xl object-cover shadow-glow"
+              key={heroTee.id}
+              src={heroTee.image}
+              alt={`Camiseta A MÁQUINA cor ${heroTee.name}`}
+              width={1536}
+              height={1536}
+              className="animate-fade-in w-full rounded-2xl object-cover shadow-glow"
             />
+            <div className="mt-5 flex justify-center gap-2">
+              {COLORS.map((c, i) => (
+                <button
+                  key={c.id}
+                  onClick={() => setHeroIndex(i)}
+                  aria-label={`Ver camiseta ${c.name}`}
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    i === heroIndex ? "w-8 bg-accent" : "w-2 bg-border"
+                  }`}
+                />
+              ))}
+            </div>
           </div>
         </div>
 
@@ -144,16 +166,16 @@ export function Store() {
               >
                 <button
                   onClick={() => setColor(c.id)}
-                  className="block w-full"
+                  className="group block w-full overflow-hidden"
                   aria-label={`Selecionar cor ${c.name}`}
                 >
                   <img
                     src={c.image}
                     alt={`Camiseta A MÁQUINA ${c.name}`}
                     loading="lazy"
-                    width={1024}
-                    height={1024}
-                    className="aspect-square w-full object-cover"
+                    width={1536}
+                    height={1536}
+                    className="aspect-square w-full object-cover transition-transform duration-700 ease-out will-change-transform group-hover:scale-105 animate-float"
                   />
                 </button>
                 <div className="space-y-4 p-5">
@@ -170,15 +192,6 @@ export function Store() {
                       {formatKz(OLD_PRICE)}
                     </span>
                   </div>
-                  <Button
-                    variant={active ? "accent" : "outlineHero"}
-                    className="h-11 w-full rounded-full"
-                    asChild
-                  >
-                    <a href={c.checkoutUrl} target="_blank" rel="noreferrer">
-                      Comprar agora
-                    </a>
-                  </Button>
                 </div>
               </article>
             );
@@ -426,56 +439,30 @@ export function Store() {
           Espaço reservado para avaliações reais dos nossos clientes.
         </p>
         <div className="mt-10 grid gap-4 md:grid-cols-3">
-          {[0, 1, 2].map((i) => (
-            <div key={i} className="rounded-2xl border border-dashed border-border bg-card p-6">
+          {TESTIMONIALS.map((t) => (
+            <div key={t.name} className="rounded-2xl border border-border bg-card p-6">
               <div className="flex items-center gap-3">
-                <div className="h-11 w-11 shrink-0 rounded-full bg-secondary" />
+                <img
+                  src={t.avatar}
+                  alt={`Cliente ${t.name}`}
+                  loading="lazy"
+                  width={816}
+                  height={816}
+                  className="h-11 w-11 shrink-0 rounded-full object-cover"
+                />
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-muted-foreground">
-                    Nome do cliente
-                  </p>
+                  <p className="truncate text-sm font-semibold">{t.name}</p>
                   <div className="mt-1 flex gap-0.5">
-                    {Array.from({ length: 5 }).map((_, s) => (
-                      <Star key={s} className="h-3.5 w-3.5 text-muted-foreground" />
+                    {Array.from({ length: 5 }).map((_, s2) => (
+                      <Star key={s2} className="h-3.5 w-3.5 fill-accent text-accent" />
                     ))}
                   </div>
                 </div>
               </div>
-              <p className="mt-4 text-sm text-muted-foreground">
-                Comentário do cliente aparecerá aqui.
-              </p>
+              <p className="mt-4 text-sm text-muted-foreground">{t.text}</p>
             </div>
           ))}
         </div>
-      </Section>
-
-      {/* EM BREVE */}
-      <Section id="em-breve">
-        <h2 className="text-[clamp(2rem,6vw,3.5rem)] leading-none">EM BREVE</h2>
-        <p className="mt-3 text-sm text-muted-foreground">A coleção A MÁQUINA vai crescer.</p>
-        <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-          {["Casacos", "Moletons", "Bonés", "Calças", "Shorts", "Acessórios"].map((item) => (
-            <div
-              key={item}
-              className="grid aspect-square place-items-center rounded-2xl border border-dashed border-border bg-card/50 font-display tracking-tight text-muted-foreground"
-            >
-              {item}
-            </div>
-          ))}
-        </div>
-      </Section>
-
-      {/* AJUDA */}
-      <Section className="border-t border-border text-center">
-        <h2 className="text-[clamp(2rem,6vw,3.5rem)] leading-none">PRECISAS DE AJUDA?</h2>
-        <p className="mt-3 text-sm text-muted-foreground">
-          Fala connosco diretamente pelo WhatsApp.
-        </p>
-        <Button variant="whatsapp" size="xl" className="mt-8" asChild>
-          <a href={whatsappLink("Olá A MÁQUINA! Preciso de ajuda.")} target="_blank" rel="noreferrer">
-            <MessageCircle className="h-5 w-5" /> Falar com A MÁQUINA
-          </a>
-        </Button>
       </Section>
 
       {/* FOOTER */}
@@ -494,16 +481,6 @@ export function Store() {
                   </a>
                 </li>
               ))}
-              <li>
-                <a
-                  href={whatsappLink("Olá A MÁQUINA!")}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-muted-foreground hover:text-foreground"
-                >
-                  WhatsApp
-                </a>
-              </li>
             </ul>
             <ul className="space-y-2">
               {["Termos e Condições", "Política de Privacidade", "Política de Entrega"].map((l) => (
@@ -520,17 +497,6 @@ export function Store() {
           © {new Date().getFullYear()} A MÁQUINA. Todos os direitos reservados.
         </p>
       </footer>
-
-      {/* WHATSAPP FLUTUANTE */}
-      <a
-        href={whatsappLink("Olá A MÁQUINA!")}
-        target="_blank"
-        rel="noreferrer"
-        aria-label="Falar no WhatsApp"
-        className="fixed bottom-24 right-4 z-50 grid h-14 w-14 place-items-center rounded-full bg-[oklch(0.68_0.16_150)] text-[oklch(0.14_0_0)] shadow-glow transition-transform hover:scale-105 md:bottom-6"
-      >
-        <MessageCircle className="h-6 w-6" />
-      </a>
 
       {/* BARRA FIXA MOBILE */}
       <div className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-t border-border bg-background/95 px-4 py-3 backdrop-blur-xl md:hidden">
@@ -556,11 +522,6 @@ export function Store() {
             Obrigado por escolher A MÁQUINA. Recebemos o teu pedido e entraremos em contacto contigo
             pelo telefone/WhatsApp para confirmar os detalhes da entrega.
           </DialogDescription>
-          <Button variant="whatsapp" size="xl" className="mt-4 w-full" asChild>
-            <a href={whatsappLink(orderMessage)} target="_blank" rel="noreferrer">
-              <MessageCircle className="h-5 w-5" /> Falar no WhatsApp
-            </a>
-          </Button>
         </DialogContent>
       </Dialog>
     </div>
