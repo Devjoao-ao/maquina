@@ -42,7 +42,6 @@ export function Store() {
   const cart = useCart();
   const [color, setColor] = useState<ColorId>("preto");
   const [size, setSize] = useState<Size>("M");
-  const [qty, setQty] = useState(1);
   const [confirmed, setConfirmed] = useState(false);
   const [form, setForm] = useState({
     nome: "",
@@ -60,10 +59,9 @@ export function Store() {
 
   const heroTee = COLORS[heroIndex] ?? COLORS[0]!;
 
-  const total = useMemo(() => qty * PRICE, [qty]);
   const selected = colorById(color);
 
-  const orderMessage = `Olá A MÁQUINA! Quero encomendar ${qty}x Camiseta Original — Cor: ${selected.name}, Tamanho: ${size}. Total: ${formatKz(total)} (entrega grátis).`;
+  const orderMessage = `Olá A MÁQUINA! Quero encomendar 1x Camiseta Original — Cor: ${selected.name}, Tamanho: ${size}. Total: ${formatKz(PRICE)} (entrega grátis).`;
 
   return (
     <div id="top">
