@@ -117,10 +117,19 @@ export function Store() {
               key={heroTee.id}
               src={heroTee.image}
               alt={`Camiseta A MÁQUINA cor ${heroTee.name}`}
-              width={1536}
-              height={1536}
+              width={1024}
+              height={1024}
+              loading="eager"
+              fetchPriority="high"
+              decoding="async"
               className="animate-fade-in w-full rounded-2xl object-cover shadow-glow"
             />
+            {/* pré-carrega as outras cores para a troca ser instantânea */}
+            <div aria-hidden className="hidden">
+              {COLORS.map((c) => (
+                <img key={c.id} src={c.image} alt="" width={1} height={1} decoding="async" />
+              ))}
+            </div>
             <div className="mt-5 flex justify-center gap-2">
               {COLORS.map((c, i) => (
                 <button
