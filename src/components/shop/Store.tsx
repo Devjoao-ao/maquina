@@ -415,7 +415,12 @@ export function Store() {
               </div>
 
               <div className="flex flex-col gap-3 sm:flex-row">
-                <Button type="submit" variant="hero" size="xl" className="flex-1">
+                <Button
+                  type="submit"
+                  variant="hero"
+                  size="xl"
+                  className="h-16 flex-1 px-10 text-lg sm:h-[4.5rem] sm:text-xl"
+                >
                   Finalizar pedido
                 </Button>
                 <Button
