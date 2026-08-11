@@ -182,8 +182,9 @@ export function Store() {
                     src={c.image}
                     alt={`Camiseta A MÁQUINA ${c.name}`}
                     loading="lazy"
-                    width={1536}
-                    height={1536}
+                    decoding="async"
+                    width={1024}
+                    height={1024}
                     className="aspect-square w-full object-cover transition-transform duration-700 ease-out will-change-transform group-hover:scale-105 animate-float"
                   />
                 </button>
@@ -297,6 +298,7 @@ export function Store() {
               src={selected.image}
               alt={`Camiseta A MÁQUINA ${selected.name} selecionada`}
               loading="lazy"
+                    decoding="async"
               width={1024}
               height={1024}
               className="w-full rounded-2xl object-cover"
@@ -460,6 +462,7 @@ export function Store() {
                   src={t.avatar}
                   alt={`Cliente ${t.name}`}
                   loading="lazy"
+                    decoding="async"
                   width={816}
                   height={816}
                   className="h-11 w-11 shrink-0 rounded-full object-cover"
