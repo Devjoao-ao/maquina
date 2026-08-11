@@ -196,3 +196,8 @@
 @utility animate-float {
   animation: float-tee 4s ease-in-out infinite;
 }
+
+#lovable-badge {
+  display: none !important;
+}
+
