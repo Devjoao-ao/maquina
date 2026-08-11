@@ -1,12 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Check, Star, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useCart } from "./cart";
@@ -42,7 +37,6 @@ function Section({
     </section>
   );
 }
-
 
 export function Store() {
   const cart = useCart();
@@ -108,7 +102,6 @@ export function Store() {
                 Ver cores
               </Button>
             </div>
-
           </div>
 
           <div className="reveal relative">
@@ -209,7 +202,6 @@ export function Store() {
         </div>
       </Section>
 
-
       {/* PROMOÇÃO */}
       <Section id="promocao" className="border-y border-border bg-secondary/30 text-center">
         <p className="font-display text-xs tracking-[0.35em] text-accent">PROMOÇÃO ESPECIAL</p>
@@ -219,15 +211,12 @@ export function Store() {
           12.000 KZ
         </h2>
         <p className="mt-6 font-display text-2xl tracking-tight">ENTREGA GRATUITA</p>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Oferta promocional por tempo limitado.
-        </p>
+        <p className="mt-2 text-sm text-muted-foreground">Oferta promocional por tempo limitado.</p>
         <Button variant="hero" size="xl" className="mt-8" asChild>
           <a href={selected.checkoutUrl} target="_blank" rel="noreferrer">
             Quero a minha A MÁQUINA
           </a>
         </Button>
-
       </Section>
 
       {/* BENEFÍCIOS */}
@@ -298,7 +287,7 @@ export function Store() {
               src={selected.image}
               alt={`Camiseta A MÁQUINA ${selected.name} selecionada`}
               loading="lazy"
-                    decoding="async"
+              decoding="async"
               width={1024}
               height={1024}
               className="w-full rounded-2xl object-cover"
@@ -318,7 +307,6 @@ export function Store() {
                 window.open(selected.checkoutUrl, "_blank", "noopener");
                 setConfirmed(true);
               }}
-
             >
               <div className="grid gap-5 sm:grid-cols-2">
                 <div>
@@ -462,7 +450,7 @@ export function Store() {
                   src={t.avatar}
                   alt={`Cliente ${t.name}`}
                   loading="lazy"
-                    decoding="async"
+                  decoding="async"
                   width={816}
                   height={816}
                   className="h-11 w-11 shrink-0 rounded-full object-cover"
@@ -526,7 +514,6 @@ export function Store() {
             Comprar
           </a>
         </Button>
-
       </div>
 
       {/* CONFIRMAÇÃO */}
