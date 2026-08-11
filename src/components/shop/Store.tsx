@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Check, Star, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
@@ -42,7 +42,6 @@ export function Store() {
   const cart = useCart();
   const [color, setColor] = useState<ColorId>("preto");
   const [size, setSize] = useState<Size>("M");
-  const [qty, setQty] = useState(1);
   const [confirmed, setConfirmed] = useState(false);
   const [form, setForm] = useState({
     nome: "",
@@ -60,10 +59,9 @@ export function Store() {
 
   const heroTee = COLORS[heroIndex] ?? COLORS[0]!;
 
-  const total = useMemo(() => qty * PRICE, [qty]);
   const selected = colorById(color);
 
-  const orderMessage = `Olá A MÁQUINA! Quero encomendar ${qty}x Camiseta Original — Cor: ${selected.name}, Tamanho: ${size}. Total: ${formatKz(total)} (entrega grátis).`;
+  const orderMessage = `Olá A MÁQUINA! Quero encomendar 1x Camiseta Original — Cor: ${selected.name}, Tamanho: ${size}. Total: ${formatKz(PRICE)} (entrega grátis).`;
 
   return (
     <div id="top">
@@ -93,10 +91,8 @@ export function Store() {
             </div>
 
             <div className="mt-8 flex flex-wrap gap-3">
-              <Button variant="hero" size="xl" asChild>
-                <a href={selected.checkoutUrl} target="_blank" rel="noreferrer">
-                  Comprar agora
-                </a>
+              <Button variant="hero" size="xl" onClick={() => scrollTo("comprar")}>
+                Comprar agora
               </Button>
               <Button variant="outlineHero" size="xl" onClick={() => scrollTo("cores")}>
                 Ver cores
@@ -388,18 +384,6 @@ export function Store() {
                     ))}
                   </select>
                 </div>
-                <div>
-                  <Label htmlFor="qtd">Quantidade</Label>
-                  <Input
-                    id="qtd"
-                    type="number"
-                    min={1}
-                    max={20}
-                    value={qty}
-                    onChange={(e) => setQty(Math.max(1, Number(e.target.value) || 1))}
-                    className="mt-2 h-12"
-                  />
-                </div>
               </div>
 
               <div className="rounded-2xl border border-border bg-card p-6">
@@ -409,7 +393,7 @@ export function Store() {
                 </div>
                 <div className="mt-3 flex items-center justify-between font-display text-2xl">
                   <span>Total</span>
-                  <span>{formatKz(total)}</span>
+                  <span>{formatKz(PRICE)}</span>
                 </div>
               </div>
 
@@ -418,7 +402,7 @@ export function Store() {
                   type="submit"
                   variant="hero"
                   size="xl"
-                  className="h-16 flex-1 px-10 text-lg sm:h-[4.5rem] sm:text-xl"
+                  className="h-16 flex-1 px-12 text-lg sm:h-20 sm:text-2xl"
                 >
                   Finalizar pedido
                 </Button>
@@ -426,7 +410,7 @@ export function Store() {
                   type="button"
                   variant="outlineHero"
                   size="xl"
-                  onClick={() => cart.add(color, size, qty)}
+                  onClick={() => cart.add(color, size, 1)}
                 >
                   Adicionar ao carrinho
                 </Button>
