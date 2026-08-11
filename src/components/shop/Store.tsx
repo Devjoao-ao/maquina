@@ -64,7 +64,7 @@ export function Store() {
     return () => clearInterval(id);
   }, []);
 
-  const heroTee = COLORS[heroIndex];
+  const heroTee = COLORS[heroIndex] ?? COLORS[0]!;
 
   const total = useMemo(() => qty * PRICE, [qty]);
   const selected = colorById(color);
