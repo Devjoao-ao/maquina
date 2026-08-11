@@ -6,8 +6,7 @@ import { useCart } from "./cart";
 const NAV = [
   { label: "COLEÇÃO", href: "#colecao" },
   { label: "CAMISETAS", href: "#cores" },
-  { label: "CASACOS", href: "#em-breve" },
-  { label: "ACESSÓRIOS", href: "#em-breve" },
+  { label: "TAMANHOS", href: "#tamanhos" },
   { label: "PROMOÇÕES", href: "#promocao" },
 ];
 

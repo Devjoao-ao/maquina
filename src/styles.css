@@ -187,3 +187,12 @@
   }
 }
 
+
+@keyframes float-tee {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@utility animate-float {
+  animation: float-tee 4s ease-in-out infinite;
+}
