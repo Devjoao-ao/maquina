@@ -69,7 +69,7 @@ export function Store() {
       <section className="relative overflow-hidden border-b border-border">
         <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-16 sm:px-6 md:py-24 lg:grid-cols-2">
           <div className="reveal">
-            <span className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-4 py-1.5 text-xs font-bold tracking-[0.2em] text-accent">
+            <span className="inline-flex items-center gap-2 rounded-none border border-accent/40 bg-accent/10 px-4 py-1.5 text-xs font-bold tracking-[0.2em] text-accent">
               <Truck className="h-3.5 w-3.5" /> ENTREGA GRÁTIS
             </span>
             <h1 className="mt-6 text-[clamp(3rem,11vw,7rem)] leading-[0.85]">
@@ -111,7 +111,7 @@ export function Store() {
               loading="eager"
               fetchPriority="high"
               decoding="async"
-              className="animate-fade-in w-full rounded-2xl object-cover shadow-glow"
+              className="animate-fade-in w-full rounded-none object-cover shadow-glow"
             />
             {/* pré-carrega as outras cores para a troca ser instantânea */}
             <div aria-hidden className="hidden">
@@ -125,7 +125,7 @@ export function Store() {
                   key={c.id}
                   onClick={() => setHeroIndex(i)}
                   aria-label={`Ver camiseta ${c.name}`}
-                  className={`h-2 rounded-full transition-all duration-300 ${
+                  className={`h-2 rounded-none transition-all duration-300 ${
                     i === heroIndex ? "w-8 bg-accent" : "w-2 bg-border"
                   }`}
                 />
@@ -158,7 +158,7 @@ export function Store() {
             return (
               <article
                 key={c.id}
-                className={`w-[78%] shrink-0 snap-center overflow-hidden rounded-2xl border bg-card transition-all duration-300 md:w-auto ${
+                className={`w-[78%] shrink-0 snap-center overflow-hidden rounded-none border bg-card transition-all duration-300 md:w-auto ${
                   active ? "border-accent shadow-glow" : "border-border hover:-translate-y-1"
                 }`}
               >
@@ -181,7 +181,7 @@ export function Store() {
                   <div className="flex items-center justify-between gap-3">
                     <span className="font-display text-lg tracking-tight">{c.name}</span>
                     <span
-                      className="h-6 w-6 shrink-0 rounded-full border border-border"
+                      className="h-6 w-6 shrink-0 rounded-none border border-border"
                       style={{ backgroundColor: c.swatch }}
                     />
                   </div>
@@ -225,7 +225,7 @@ export function Store() {
             ["Várias cores", "Preto, rosa, rosa claro e branco."],
             ["Entrega gratuita", "Sem custos de entrega durante a promoção."],
           ].map(([title, text]) => (
-            <div key={title} className="rounded-2xl border border-border bg-card p-6">
+            <div key={title} className="rounded-none border border-border bg-card p-6">
               <Check className="h-6 w-6 text-accent" />
               <h3 className="mt-4 text-lg tracking-tight">{title}</h3>
               <p className="mt-2 text-sm text-muted-foreground">{text}</p>
@@ -242,7 +242,7 @@ export function Store() {
             <button
               key={s}
               onClick={() => setSize(s)}
-              className={`h-14 w-16 rounded-xl border font-display text-lg transition-all duration-200 ${
+              className={`h-14 w-16 rounded-none border font-display text-lg transition-all duration-200 ${
                 size === s
                   ? "border-accent bg-accent text-accent-foreground"
                   : "border-border hover:border-foreground"
@@ -253,7 +253,7 @@ export function Store() {
           ))}
         </div>
 
-        <div className="mt-10 overflow-hidden rounded-2xl border border-border">
+        <div className="mt-10 overflow-hidden rounded-none border border-border">
           <table className="w-full text-left text-sm">
             <thead className="bg-card font-display tracking-wide">
               <tr>
@@ -286,7 +286,7 @@ export function Store() {
               decoding="async"
               width={1024}
               height={1024}
-              className="w-full rounded-2xl object-cover"
+              className="w-full rounded-none object-cover"
             />
           </div>
 
@@ -334,7 +334,7 @@ export function Store() {
                     id="provincia"
                     value={form.provincia}
                     onChange={(e) => setForm({ ...form, provincia: e.target.value })}
-                    className="mt-2 h-12 w-full rounded-md border border-input bg-background px-3 text-sm"
+                    className="mt-2 h-12 w-full rounded-none border border-input bg-background px-3 text-sm"
                   >
                     {PROVINCES.map((p) => (
                       <option key={p} value={p}>
@@ -360,7 +360,7 @@ export function Store() {
                     id="cor"
                     value={color}
                     onChange={(e) => setColor(e.target.value as ColorId)}
-                    className="mt-2 h-12 w-full rounded-md border border-input bg-background px-3 text-sm"
+                    className="mt-2 h-12 w-full rounded-none border border-input bg-background px-3 text-sm"
                   >
                     {COLORS.map((c) => (
                       <option key={c.id} value={c.id}>
@@ -375,7 +375,7 @@ export function Store() {
                     id="tamanho"
                     value={size}
                     onChange={(e) => setSize(e.target.value as Size)}
-                    className="mt-2 h-12 w-full rounded-md border border-input bg-background px-3 text-sm"
+                    className="mt-2 h-12 w-full rounded-none border border-input bg-background px-3 text-sm"
                   >
                     {SIZES.map((s) => (
                       <option key={s} value={s}>
@@ -386,7 +386,7 @@ export function Store() {
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-border bg-card p-6">
+              <div className="rounded-none border border-border bg-card p-6">
                 <div className="flex items-center justify-between text-sm text-muted-foreground">
                   <span>Entrega</span>
                   <span className="font-semibold text-accent">GRATUITA</span>
@@ -428,7 +428,7 @@ export function Store() {
         </p>
         <div className="mt-10 grid gap-4 md:grid-cols-3">
           {TESTIMONIALS.map((t) => (
-            <div key={t.name} className="rounded-2xl border border-border bg-card p-6">
+            <div key={t.name} className="rounded-none border border-border bg-card p-6">
               <div className="flex items-center gap-3">
                 <img
                   src={t.avatar}
@@ -437,7 +437,7 @@ export function Store() {
                   decoding="async"
                   width={816}
                   height={816}
-                  className="h-11 w-11 shrink-0 rounded-full object-cover"
+                  className="h-11 w-11 shrink-0 rounded-none object-cover"
                 />
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold">{t.name}</p>
@@ -493,7 +493,7 @@ export function Store() {
           <p className="truncate font-display text-lg leading-none">{formatKz(PRICE)}</p>
           <p className="truncate text-[11px] tracking-widest text-accent">ENTREGA GRÁTIS</p>
         </div>
-        <Button variant="hero" className="h-11 rounded-full px-8" asChild>
+        <Button variant="hero" className="h-11 rounded-none px-8" asChild>
           <a href={selected.checkoutUrl} target="_blank" rel="noreferrer">
             Comprar
           </a>
