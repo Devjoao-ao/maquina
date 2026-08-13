@@ -1,6 +1,4 @@
-import { useState } from "react";
-import { Menu, ShoppingBag, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ShoppingBag } from "lucide-react";
 import { useCart } from "./cart";
 
 const NAV = [
@@ -12,75 +10,45 @@ const NAV = [
 
 export function Header() {
   const { count, setOpen } = useCart();
-  const [menu, setMenu] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur-xl">
-      <div className="mx-auto grid max-w-7xl grid-cols-[auto_1fr_auto] items-center gap-4 px-4 py-4 sm:px-6">
-        <a href="#top" className="font-display text-xl tracking-tight sm:text-2xl">
+    <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur-xl">
+      <div className="border-b border-border">
+        <p className="mx-auto max-w-7xl px-4 py-2 text-center text-[11px] font-semibold tracking-[0.16em] text-muted-foreground sm:px-6">
+          PROMOÇÃO LIMITADA · 12.000 KZ EM VEZ DE 25.000 KZ · ENTREGA GRÁTIS
+        </p>
+      </div>
+
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
+        <a href="#top" className="font-display text-lg tracking-tight sm:text-xl">
           A MÁQUINA
         </a>
 
-        <nav className="hidden justify-center gap-7 lg:flex">
+        <nav className="flex items-center gap-3 overflow-x-auto sm:gap-6">
           {NAV.map((item) => (
             <a
               key={item.label}
               href={item.href}
-              className="text-xs font-semibold tracking-[0.18em] text-muted-foreground transition-colors hover:text-foreground"
+              className="whitespace-nowrap text-[10px] font-semibold tracking-[0.14em] text-muted-foreground transition-colors hover:text-foreground sm:text-xs"
             >
               {item.label}
             </a>
           ))}
         </nav>
 
-        <div className="flex items-center justify-end gap-1">
-          <button
+        <button
             onClick={() => setOpen(true)}
             aria-label="Abrir carrinho"
-            className="relative grid h-10 w-10 place-items-center rounded-md transition-colors hover:bg-secondary"
+            className="relative grid h-9 w-9 shrink-0 place-items-center rounded-md transition-colors hover:bg-secondary"
           >
-            <ShoppingBag className="h-5 w-5" />
+            <ShoppingBag className="h-4.5 w-4.5" />
             {count > 0 && (
               <span className="absolute -right-0.5 -top-0.5 grid h-5 w-5 place-items-center rounded-md bg-foreground text-[11px] font-bold text-background">
                 {count}
               </span>
             )}
-          </button>
-          <button
-            onClick={() => setMenu((v) => !v)}
-            aria-label="Abrir menu"
-            className="grid h-10 w-10 place-items-center rounded-md transition-colors hover:bg-secondary lg:hidden"
-          >
-            {menu ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
-        </div>
+        </button>
       </div>
-
-      {menu && (
-        <nav className="border-t border-border bg-background px-4 pb-6 pt-2 lg:hidden">
-          {NAV.map((item) => (
-            <a
-              key={item.label}
-              href={item.href}
-              onClick={() => setMenu(false)}
-              className="block border-b border-border py-3 font-display text-lg tracking-tight"
-            >
-              {item.label}
-            </a>
-          ))}
-          <Button
-            variant="hero"
-            size="xl"
-            className="mt-5 w-full"
-            onClick={() => {
-              setMenu(false);
-              document.getElementById("comprar")?.scrollIntoView({ behavior: "smooth" });
-            }}
-          >
-            Comprar agora
-          </Button>
-        </nav>
-      )}
     </header>
   );
 }
