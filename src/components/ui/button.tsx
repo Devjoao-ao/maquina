@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-none text-sm font-medium cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
@@ -16,18 +16,18 @@ const buttonVariants = cva(
         secondary: "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        hero: "bg-foreground text-background font-display tracking-wide uppercase shadow-glow hover:-translate-y-0.5 hover:shadow-none transition-all duration-300",
+        hero: "bg-foreground text-background font-display tracking-wide uppercase transition-all duration-300",
         accent:
-          "bg-accent text-accent-foreground font-display tracking-wide uppercase hover:-translate-y-0.5 transition-all duration-300",
+          "bg-accent text-accent-foreground font-display tracking-wide uppercase transition-all duration-300",
         outlineHero:
           "border border-foreground/30 bg-transparent font-display uppercase tracking-wide hover:bg-foreground hover:text-background transition-all duration-300",
         whatsapp: "bg-[oklch(0.68_0.16_150)] text-[oklch(0.14_0_0)] font-semibold hover:opacity-90",
       },
       size: {
         default: "h-9 px-4 py-2",
-        sm: "h-8 rounded-none px-3 text-xs",
-        lg: "h-10 rounded-none px-8",
-        xl: "h-14 rounded-none px-10 text-base",
+        sm: "h-8 rounded-md px-3 text-xs",
+        lg: "h-10 rounded-md px-8",
+        xl: "h-14 rounded-md px-10 text-base",
         icon: "h-9 w-9",
       },
 

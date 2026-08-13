@@ -98,7 +98,7 @@ function CartDrawer() {
                     loading="lazy"
                     width={1024}
                     height={1024}
-                    className="h-24 w-24 shrink-0 rounded-none object-cover"
+                    className="h-24 w-24 shrink-0 rounded-md object-cover"
                   />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-2">
@@ -117,7 +117,7 @@ function CartDrawer() {
                         value={item.color}
                         onChange={(e) => update(item.id, { color: e.target.value as ColorId })}
                         aria-label="Cor"
-                        className="rounded-none border border-border bg-background px-2 py-1 text-xs"
+                        className="rounded-md border border-border bg-background px-2 py-1 text-xs"
                       >
                         {COLORS.map((c) => (
                           <option key={c.id} value={c.id}>
@@ -129,7 +129,7 @@ function CartDrawer() {
                         value={item.size}
                         onChange={(e) => update(item.id, { size: e.target.value as Size })}
                         aria-label="Tamanho"
-                        className="rounded-none border border-border bg-background px-2 py-1 text-xs"
+                        className="rounded-md border border-border bg-background px-2 py-1 text-xs"
                       >
                         {SIZES.map((s) => (
                           <option key={s} value={s}>
@@ -140,7 +140,7 @@ function CartDrawer() {
                     </div>
 
                     <div className="mt-3 flex items-center justify-between">
-                      <div className="flex items-center gap-1 rounded-none border border-border">
+                      <div className="flex items-center gap-1 rounded-md border border-border">
                         <button
                           className="px-2 py-1"
                           aria-label="Diminuir"
@@ -173,7 +173,7 @@ function CartDrawer() {
           </div>
           <div className="mt-1 flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Entrega</span>
-            <span className="font-semibold text-accent">GRÁTIS</span>
+            <span className="font-semibold">GRÁTIS</span>
           </div>
           <div className="mt-3 flex items-center justify-between border-t border-border pt-3 font-display text-xl">
             <span>TOTAL</span>

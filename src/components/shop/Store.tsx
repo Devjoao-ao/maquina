@@ -69,10 +69,10 @@ export function Store() {
       <section className="relative overflow-hidden border-b border-border">
         <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-16 sm:px-6 md:py-24 lg:grid-cols-2">
           <div className="reveal">
-            <span className="inline-flex items-center gap-2 rounded-none border border-accent/40 bg-accent/10 px-4 py-1.5 text-xs font-bold tracking-[0.2em] text-accent">
+            <span className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-1.5 text-xs font-bold tracking-[0.2em] text-muted-foreground">
               <Truck className="h-3.5 w-3.5" /> ENTREGA GRÁTIS
             </span>
-            <h1 className="mt-6 text-[clamp(3rem,11vw,7rem)] leading-[0.85]">
+            <h1 className="font-graffiti mt-6 text-[clamp(2.75rem,10vw,6.5rem)] leading-[0.95]">
               VESTE A<br />
               MÁQUINA.
             </h1>
@@ -101,7 +101,6 @@ export function Store() {
           </div>
 
           <div className="reveal relative">
-            <div className="absolute inset-x-6 top-10 -z-10 h-72 rounded-full bg-accent/25 blur-3xl" />
             <img
               key={heroTee.id}
               src={heroTee.image}
@@ -111,7 +110,7 @@ export function Store() {
               loading="eager"
               fetchPriority="high"
               decoding="async"
-              className="animate-fade-in w-full rounded-none object-cover shadow-glow"
+              className="animate-fade-in w-full rounded-md object-cover"
             />
             {/* pré-carrega as outras cores para a troca ser instantânea */}
             <div aria-hidden className="hidden">
@@ -125,8 +124,8 @@ export function Store() {
                   key={c.id}
                   onClick={() => setHeroIndex(i)}
                   aria-label={`Ver camiseta ${c.name}`}
-                  className={`h-2 rounded-none transition-all duration-300 ${
-                    i === heroIndex ? "w-8 bg-accent" : "w-2 bg-border"
+                  className={`h-2 rounded-md transition-all duration-300 ${
+                    i === heroIndex ? "w-8 bg-foreground" : "w-2 bg-border"
                   }`}
                 />
               ))}
@@ -158,8 +157,8 @@ export function Store() {
             return (
               <article
                 key={c.id}
-                className={`w-[78%] shrink-0 snap-center overflow-hidden rounded-none border bg-card transition-all duration-300 md:w-auto ${
-                  active ? "border-accent shadow-glow" : "border-border hover:-translate-y-1"
+                className={`w-[78%] shrink-0 snap-center overflow-hidden rounded-md border bg-card transition-all duration-300 md:w-auto ${
+                  active ? "border-foreground" : "border-border"
                 }`}
               >
                 <button
@@ -174,14 +173,14 @@ export function Store() {
                     decoding="async"
                     width={1024}
                     height={1024}
-                    className="aspect-square w-full object-cover transition-transform duration-700 ease-out will-change-transform group-hover:scale-105 animate-float"
+                    className="aspect-square w-full object-cover"
                   />
                 </button>
                 <div className="space-y-4 p-5">
                   <div className="flex items-center justify-between gap-3">
                     <span className="font-display text-lg tracking-tight">{c.name}</span>
                     <span
-                      className="h-6 w-6 shrink-0 rounded-none border border-border"
+                      className="h-6 w-6 shrink-0 rounded-md border border-border"
                       style={{ backgroundColor: c.swatch }}
                     />
                   </div>
@@ -200,7 +199,7 @@ export function Store() {
 
       {/* PROMOÇÃO */}
       <Section id="promocao" className="border-y border-border bg-secondary/30 text-center">
-        <p className="font-display text-xs tracking-[0.35em] text-accent">PROMOÇÃO ESPECIAL</p>
+        <p className="font-display text-xs tracking-[0.35em] text-muted-foreground">PROMOÇÃO ESPECIAL</p>
         <h2 className="mt-4 text-[clamp(2.5rem,9vw,6rem)] leading-[0.9]">
           POR APENAS
           <br />
@@ -225,8 +224,8 @@ export function Store() {
             ["Várias cores", "Preto, rosa, rosa claro e branco."],
             ["Entrega gratuita", "Sem custos de entrega durante a promoção."],
           ].map(([title, text]) => (
-            <div key={title} className="rounded-none border border-border bg-card p-6">
-              <Check className="h-6 w-6 text-accent" />
+            <div key={title} className="rounded-md border border-border bg-card p-6">
+              <Check className="h-6 w-6 text-foreground" />
               <h3 className="mt-4 text-lg tracking-tight">{title}</h3>
               <p className="mt-2 text-sm text-muted-foreground">{text}</p>
             </div>
@@ -242,9 +241,9 @@ export function Store() {
             <button
               key={s}
               onClick={() => setSize(s)}
-              className={`h-14 w-16 rounded-none border font-display text-lg transition-all duration-200 ${
+              className={`h-14 w-16 rounded-md border font-display text-lg transition-all duration-200 ${
                 size === s
-                  ? "border-accent bg-accent text-accent-foreground"
+                  ? "border-foreground bg-foreground text-background"
                   : "border-border hover:border-foreground"
               }`}
             >
@@ -253,7 +252,7 @@ export function Store() {
           ))}
         </div>
 
-        <div className="mt-10 overflow-hidden rounded-none border border-border">
+        <div className="mt-10 overflow-hidden rounded-md border border-border">
           <table className="w-full text-left text-sm">
             <thead className="bg-card font-display tracking-wide">
               <tr>
@@ -286,7 +285,7 @@ export function Store() {
               decoding="async"
               width={1024}
               height={1024}
-              className="w-full rounded-none object-cover"
+              className="w-full rounded-md object-cover"
             />
           </div>
 
@@ -334,7 +333,7 @@ export function Store() {
                     id="provincia"
                     value={form.provincia}
                     onChange={(e) => setForm({ ...form, provincia: e.target.value })}
-                    className="mt-2 h-12 w-full rounded-none border border-input bg-background px-3 text-sm"
+                    className="mt-2 h-12 w-full rounded-md border border-input bg-background px-3 text-sm"
                   >
                     {PROVINCES.map((p) => (
                       <option key={p} value={p}>
@@ -360,7 +359,7 @@ export function Store() {
                     id="cor"
                     value={color}
                     onChange={(e) => setColor(e.target.value as ColorId)}
-                    className="mt-2 h-12 w-full rounded-none border border-input bg-background px-3 text-sm"
+                    className="mt-2 h-12 w-full rounded-md border border-input bg-background px-3 text-sm"
                   >
                     {COLORS.map((c) => (
                       <option key={c.id} value={c.id}>
@@ -375,7 +374,7 @@ export function Store() {
                     id="tamanho"
                     value={size}
                     onChange={(e) => setSize(e.target.value as Size)}
-                    className="mt-2 h-12 w-full rounded-none border border-input bg-background px-3 text-sm"
+                    className="mt-2 h-12 w-full rounded-md border border-input bg-background px-3 text-sm"
                   >
                     {SIZES.map((s) => (
                       <option key={s} value={s}>
@@ -386,10 +385,10 @@ export function Store() {
                 </div>
               </div>
 
-              <div className="rounded-none border border-border bg-card p-6">
+              <div className="rounded-md border border-border bg-card p-6">
                 <div className="flex items-center justify-between text-sm text-muted-foreground">
                   <span>Entrega</span>
-                  <span className="font-semibold text-accent">GRATUITA</span>
+                  <span className="font-semibold">GRATUITA</span>
                 </div>
                 <div className="mt-3 flex items-center justify-between font-display text-2xl">
                   <span>Total</span>
@@ -428,7 +427,7 @@ export function Store() {
         </p>
         <div className="mt-10 grid gap-4 md:grid-cols-3">
           {TESTIMONIALS.map((t) => (
-            <div key={t.name} className="rounded-none border border-border bg-card p-6">
+            <div key={t.name} className="rounded-md border border-border bg-card p-6">
               <div className="flex items-center gap-3">
                 <img
                   src={t.avatar}
@@ -437,13 +436,13 @@ export function Store() {
                   decoding="async"
                   width={816}
                   height={816}
-                  className="h-11 w-11 shrink-0 rounded-none object-cover"
+                  className="h-11 w-11 shrink-0 rounded-md object-cover"
                 />
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold">{t.name}</p>
                   <div className="mt-1 flex gap-0.5">
                     {Array.from({ length: 5 }).map((_, s2) => (
-                      <Star key={s2} className="h-3.5 w-3.5 fill-accent text-accent" />
+                      <Star key={s2} className="h-3.5 w-3.5 fill-foreground text-foreground" />
                     ))}
                   </div>
                 </div>
@@ -491,9 +490,9 @@ export function Store() {
       <div className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-t border-border bg-background/95 px-4 py-3 backdrop-blur-xl md:hidden">
         <div className="min-w-0">
           <p className="truncate font-display text-lg leading-none">{formatKz(PRICE)}</p>
-          <p className="truncate text-[11px] tracking-widest text-accent">ENTREGA GRÁTIS</p>
+          <p className="truncate text-[11px] tracking-widest text-muted-foreground">ENTREGA GRÁTIS</p>
         </div>
-        <Button variant="hero" className="h-11 rounded-none px-8" asChild>
+        <Button variant="hero" className="h-11 rounded-md px-8" asChild>
           <a href={selected.checkoutUrl} target="_blank" rel="noreferrer">
             Comprar
           </a>

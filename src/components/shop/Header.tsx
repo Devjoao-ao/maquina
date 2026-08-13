@@ -37,11 +37,11 @@ export function Header() {
           <button
             onClick={() => setOpen(true)}
             aria-label="Abrir carrinho"
-            className="relative grid h-10 w-10 place-items-center rounded-none transition-colors hover:bg-secondary"
+            className="relative grid h-10 w-10 place-items-center rounded-md transition-colors hover:bg-secondary"
           >
             <ShoppingBag className="h-5 w-5" />
             {count > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 grid h-5 w-5 place-items-center rounded-none bg-accent text-[11px] font-bold text-accent-foreground">
+              <span className="absolute -right-0.5 -top-0.5 grid h-5 w-5 place-items-center rounded-md bg-foreground text-[11px] font-bold text-background">
                 {count}
               </span>
             )}
@@ -49,7 +49,7 @@ export function Header() {
           <button
             onClick={() => setMenu((v) => !v)}
             aria-label="Abrir menu"
-            className="grid h-10 w-10 place-items-center rounded-none transition-colors hover:bg-secondary lg:hidden"
+            className="grid h-10 w-10 place-items-center rounded-md transition-colors hover:bg-secondary lg:hidden"
           >
             {menu ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
