@@ -101,7 +101,6 @@ export function Store() {
           </div>
 
           <div className="reveal relative">
-            <div className="absolute inset-x-6 top-10 -z-10 h-72 rounded-full bg-accent/25 blur-3xl" />
             <img
               key={heroTee.id}
               src={heroTee.image}
