@@ -69,10 +69,10 @@ export function Store() {
       <section className="relative overflow-hidden border-b border-border">
         <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-16 sm:px-6 md:py-24 lg:grid-cols-2">
           <div className="reveal">
-            <span className="inline-flex items-center gap-2 rounded-md border border-accent/40 bg-accent/10 px-4 py-1.5 text-xs font-bold tracking-[0.2em] text-accent">
+            <span className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-1.5 text-xs font-bold tracking-[0.2em] text-muted-foreground">
               <Truck className="h-3.5 w-3.5" /> ENTREGA GRÁTIS
             </span>
-            <h1 className="mt-6 text-[clamp(3rem,11vw,7rem)] leading-[0.85]">
+            <h1 className="font-graffiti mt-6 text-[clamp(2.75rem,10vw,6.5rem)] leading-[0.95]">
               VESTE A<br />
               MÁQUINA.
             </h1>
@@ -126,7 +126,7 @@ export function Store() {
                   onClick={() => setHeroIndex(i)}
                   aria-label={`Ver camiseta ${c.name}`}
                   className={`h-2 rounded-md transition-all duration-300 ${
-                    i === heroIndex ? "w-8 bg-accent" : "w-2 bg-border"
+                    i === heroIndex ? "w-8 bg-foreground" : "w-2 bg-border"
                   }`}
                 />
               ))}
@@ -159,7 +159,7 @@ export function Store() {
               <article
                 key={c.id}
                 className={`w-[78%] shrink-0 snap-center overflow-hidden rounded-md border bg-card transition-all duration-300 md:w-auto ${
-                  active ? "border-accent" : "border-border"
+                  active ? "border-foreground" : "border-border"
                 }`}
               >
                 <button
@@ -200,7 +200,7 @@ export function Store() {
 
       {/* PROMOÇÃO */}
       <Section id="promocao" className="border-y border-border bg-secondary/30 text-center">
-        <p className="font-display text-xs tracking-[0.35em] text-accent">PROMOÇÃO ESPECIAL</p>
+        <p className="font-display text-xs tracking-[0.35em] text-muted-foreground">PROMOÇÃO ESPECIAL</p>
         <h2 className="mt-4 text-[clamp(2.5rem,9vw,6rem)] leading-[0.9]">
           POR APENAS
           <br />
@@ -226,7 +226,7 @@ export function Store() {
             ["Entrega gratuita", "Sem custos de entrega durante a promoção."],
           ].map(([title, text]) => (
             <div key={title} className="rounded-md border border-border bg-card p-6">
-              <Check className="h-6 w-6 text-accent" />
+              <Check className="h-6 w-6 text-foreground" />
               <h3 className="mt-4 text-lg tracking-tight">{title}</h3>
               <p className="mt-2 text-sm text-muted-foreground">{text}</p>
             </div>
@@ -244,7 +244,7 @@ export function Store() {
               onClick={() => setSize(s)}
               className={`h-14 w-16 rounded-md border font-display text-lg transition-all duration-200 ${
                 size === s
-                  ? "border-accent bg-accent text-accent-foreground"
+                  ? "border-foreground bg-foreground text-background"
                   : "border-border hover:border-foreground"
               }`}
             >
@@ -389,7 +389,7 @@ export function Store() {
               <div className="rounded-md border border-border bg-card p-6">
                 <div className="flex items-center justify-between text-sm text-muted-foreground">
                   <span>Entrega</span>
-                  <span className="font-semibold text-accent">GRATUITA</span>
+                  <span className="font-semibold">GRATUITA</span>
                 </div>
                 <div className="mt-3 flex items-center justify-between font-display text-2xl">
                   <span>Total</span>
@@ -443,7 +443,7 @@ export function Store() {
                   <p className="truncate text-sm font-semibold">{t.name}</p>
                   <div className="mt-1 flex gap-0.5">
                     {Array.from({ length: 5 }).map((_, s2) => (
-                      <Star key={s2} className="h-3.5 w-3.5 fill-accent text-accent" />
+                      <Star key={s2} className="h-3.5 w-3.5 fill-foreground text-foreground" />
                     ))}
                   </div>
                 </div>
@@ -491,7 +491,7 @@ export function Store() {
       <div className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-t border-border bg-background/95 px-4 py-3 backdrop-blur-xl md:hidden">
         <div className="min-w-0">
           <p className="truncate font-display text-lg leading-none">{formatKz(PRICE)}</p>
-          <p className="truncate text-[11px] tracking-widest text-accent">ENTREGA GRÁTIS</p>
+          <p className="truncate text-[11px] tracking-widest text-muted-foreground">ENTREGA GRÁTIS</p>
         </div>
         <Button variant="hero" className="h-11 rounded-md px-8" asChild>
           <a href={selected.checkoutUrl} target="_blank" rel="noreferrer">

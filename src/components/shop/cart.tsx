@@ -173,7 +173,7 @@ function CartDrawer() {
           </div>
           <div className="mt-1 flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Entrega</span>
-            <span className="font-semibold text-accent">GRÁTIS</span>
+            <span className="font-semibold">GRÁTIS</span>
           </div>
           <div className="mt-3 flex items-center justify-between border-t border-border pt-3 font-display text-xl">
             <span>TOTAL</span>
