@@ -19,17 +19,17 @@ export function Header() {
         </p>
       </div>
 
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
+      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3 sm:px-6">
         <a href="#top" className="font-display text-lg tracking-tight sm:text-xl">
           A MÁQUINA
         </a>
 
-        <nav className="flex items-center gap-3 overflow-x-auto sm:gap-6">
+        <nav className="order-3 flex w-full items-center justify-between gap-2 sm:order-none sm:w-auto sm:justify-center sm:gap-6">
           {NAV.map((item) => (
             <a
               key={item.label}
               href={item.href}
-              className="whitespace-nowrap text-[10px] font-semibold tracking-[0.14em] text-muted-foreground transition-colors hover:text-foreground sm:text-xs"
+              className="whitespace-nowrap text-[10px] font-semibold tracking-[0.1em] text-muted-foreground transition-colors hover:text-foreground sm:text-xs sm:tracking-[0.14em]"
             >
               {item.label}
             </a>
