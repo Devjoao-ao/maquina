@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Check, Star, Truck } from "lucide-react";
+import { BadgeCheck, Star, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -90,7 +90,11 @@ export function Store() {
               </span>
             </div>
 
-            <div className="mt-8 flex flex-wrap gap-3">
+            <p className="mt-6 inline-block border border-border px-3 py-1.5 text-[11px] font-semibold tracking-[0.14em] text-muted-foreground">
+              STOCK LIMITADO · ÚLTIMAS UNIDADES DESTA EDIÇÃO
+            </p>
+
+            <div className="mt-6 flex flex-wrap gap-3">
               <Button variant="hero" size="xl" onClick={() => scrollTo("comprar")}>
                 Comprar agora
               </Button>
@@ -151,13 +155,13 @@ export function Store() {
         <h2 className="text-[clamp(2rem,6vw,3.5rem)] leading-none">ESCOLHE A TUA COR</h2>
         <p className="mt-3 text-sm text-muted-foreground">4 cores. Uma só atitude.</p>
 
-        <div className="mt-10 -mx-4 flex snap-x snap-mandatory gap-5 overflow-x-auto px-4 pb-4 md:mx-0 md:grid md:grid-cols-4 md:overflow-visible md:px-0">
+        <div className="mt-10 grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-4">
           {COLORS.map((c) => {
             const active = c.id === color;
             return (
               <article
                 key={c.id}
-                className={`w-[78%] shrink-0 snap-center overflow-hidden rounded-md border bg-card transition-all duration-300 md:w-auto ${
+                className={`overflow-hidden rounded-md border bg-card transition-colors duration-200 ${
                   active ? "border-foreground" : "border-border"
                 }`}
               >
@@ -225,7 +229,7 @@ export function Store() {
             ["Entrega gratuita", "Sem custos de entrega durante a promoção."],
           ].map(([title, text]) => (
             <div key={title} className="rounded-md border border-border bg-card p-6">
-              <Check className="h-6 w-6 text-foreground" />
+              <BadgeCheck className="h-6 w-6 text-foreground" strokeWidth={1.5} />
               <h3 className="mt-4 text-lg tracking-tight">{title}</h3>
               <p className="mt-2 text-sm text-muted-foreground">{text}</p>
             </div>
@@ -309,6 +313,7 @@ export function Store() {
                   <Input
                     id="nome"
                     required
+                    placeholder="Ex.: João Manuel"
                     maxLength={100}
                     value={form.nome}
                     onChange={(e) => setForm({ ...form, nome: e.target.value })}
@@ -320,6 +325,7 @@ export function Store() {
                   <Input
                     id="telefone"
                     required
+                    placeholder="Ex.: 923 000 000"
                     inputMode="tel"
                     maxLength={20}
                     value={form.telefone}
@@ -347,6 +353,7 @@ export function Store() {
                   <Input
                     id="municipio"
                     required
+                    placeholder="Ex.: Talatona, Benfica"
                     maxLength={120}
                     value={form.municipio}
                     onChange={(e) => setForm({ ...form, municipio: e.target.value })}
@@ -401,7 +408,7 @@ export function Store() {
                   type="submit"
                   variant="hero"
                   size="xl"
-                  className="h-16 flex-1 px-12 text-lg sm:h-20 sm:text-2xl"
+                  className="flex-1"
                 >
                   Finalizar pedido
                 </Button>
