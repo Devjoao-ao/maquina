@@ -180,17 +180,21 @@ export function Store() {
                     className="aspect-square w-full object-cover"
                   />
                 </button>
-                <div className="space-y-4 p-5">
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="font-display text-lg tracking-tight">{c.name}</span>
+                <div className="space-y-3 p-3 sm:p-5">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="truncate font-display text-sm tracking-tight sm:text-lg">
+                      {c.name}
+                    </span>
                     <span
-                      className="h-6 w-6 shrink-0 rounded-md border border-border"
+                      className="h-5 w-5 shrink-0 rounded-md border border-border sm:h-6 sm:w-6"
                       style={{ backgroundColor: c.swatch }}
                     />
                   </div>
-                  <div className="flex items-baseline gap-2">
-                    <span className="font-display text-xl">{formatKz(PRICE)}</span>
-                    <span className="text-xs text-muted-foreground line-through">
+                  <div className="flex flex-wrap items-baseline gap-x-2">
+                    <span className="whitespace-nowrap font-display text-base sm:text-xl">
+                      {formatKz(PRICE)}
+                    </span>
+                    <span className="whitespace-nowrap text-[11px] text-muted-foreground line-through">
                       {formatKz(OLD_PRICE)}
                     </span>
                   </div>
