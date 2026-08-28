@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { BadgeCheck, Star, Truck } from "lucide-react";
+import { CheckBadgeIcon, TruckIcon } from "@heroicons/react/24/outline";
+import { StarIcon } from "@heroicons/react/24/solid";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -70,7 +71,7 @@ export function Store() {
         <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-16 sm:px-6 md:py-24 lg:grid-cols-2">
           <div className="reveal">
             <span className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-1.5 text-xs font-bold tracking-[0.2em] text-muted-foreground">
-              <Truck className="h-3.5 w-3.5" /> ENTREGA GRÁTIS
+              <TruckIcon className="h-3.5 w-3.5" /> ENTREGA GRÁTIS
             </span>
             <h1 className="font-graffiti mt-6 text-[clamp(2.75rem,10vw,6.5rem)] leading-[0.95]">
               VESTE A<br />
@@ -233,7 +234,7 @@ export function Store() {
             ["Entrega gratuita", "Sem custos de entrega durante a promoção."],
           ].map(([title, text]) => (
             <div key={title} className="rounded-md border border-border bg-card p-6">
-              <BadgeCheck className="h-6 w-6 text-foreground" strokeWidth={1.5} />
+              <CheckBadgeIcon className="h-6 w-6 text-foreground" />
               <h3 className="mt-4 text-lg tracking-tight">{title}</h3>
               <p className="mt-2 text-sm text-muted-foreground">{text}</p>
             </div>
@@ -453,7 +454,7 @@ export function Store() {
                   <p className="truncate text-sm font-semibold">{t.name}</p>
                   <div className="mt-1 flex gap-0.5">
                     {Array.from({ length: 5 }).map((_, s2) => (
-                      <Star key={s2} className="h-3.5 w-3.5 fill-foreground text-foreground" />
+                      <StarIcon key={s2} className="h-3.5 w-3.5 text-foreground" />
                     ))}
                   </div>
                 </div>
