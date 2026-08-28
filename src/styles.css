@@ -19,7 +19,7 @@
  */
 
 @theme inline {
-  --font-graffiti: "Rubik Spray Paint", "Ubuntu", system-ui, sans-serif;
+  --font-graffiti: "Ubuntu", system-ui, sans-serif;
   --font-display: "Ubuntu", system-ui, sans-serif;
   --font-sans: "Ubuntu", system-ui, sans-serif;
   --shadow-glow: none;
@@ -206,8 +206,8 @@
 
 @utility font-graffiti {
   font-family: var(--font-graffiti);
-  font-weight: 400;
-  letter-spacing: 0.01em;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   text-transform: uppercase;
 }
 
