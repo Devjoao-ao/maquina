@@ -19,9 +19,9 @@
  */
 
 @theme inline {
-  --font-graffiti: "Rubik Spray Paint", "Archivo", system-ui, sans-serif;
-  --font-display: "Archivo", "Inter Tight", system-ui, sans-serif;
-  --font-sans: "Archivo", "Inter Tight", system-ui, sans-serif;
+  --font-graffiti: "Rubik Spray Paint", "Ubuntu", system-ui, sans-serif;
+  --font-display: "Ubuntu", system-ui, sans-serif;
+  --font-sans: "Ubuntu", system-ui, sans-serif;
   --shadow-glow: none;
   --radius-sm: 3px;
   --radius-md: 4px;
@@ -31,6 +31,8 @@
   --radius-3xl: 8px;
   --radius-4xl: 8px;
   --color-background: var(--background);
+  --color-promo: var(--promo);
+  --color-promo-foreground: var(--promo-foreground);
 
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -87,6 +89,8 @@
   --border: oklch(1 0 0 / 12%);
   --input: oklch(1 0 0 / 16%);
   --ring: oklch(0.55 0 0);
+  --promo: oklch(0.9 0.17 95);
+  --promo-foreground: oklch(0.22 0.03 95);
   --chart-1: oklch(0.985 0 0);
   --chart-2: oklch(0.985 0 0);
   --chart-3: oklch(0.68 0 0);

@@ -24,28 +24,28 @@ export const COLORS: {
     name: "PRETO",
     image: teePreto,
     swatch: "oklch(0.18 0 0)",
-    checkoutUrl: "https://bbcheckout.lovable.app/checkout/bd6c59dc-f9cf-473f-afd5-3025e844bee6",
+    checkoutUrl: "https://www.bbcheckout.online/checkout/31748447-3ba7-4f07-b96d-c7f39391a2f8",
   },
   {
     id: "rosa",
     name: "ROSA",
     image: teeRosa,
     swatch: "oklch(0.72 0.19 350)",
-    checkoutUrl: "https://bbcheckout.lovable.app/checkout/7e51b0c8-05e9-4fef-8feb-3f2b9810d5a6",
+    checkoutUrl: "https://www.bbcheckout.online/checkout/8e8f678c-4859-4b22-8f20-4dfcbcd01a5b",
   },
   {
     id: "rosa-claro",
     name: "ROSA CLARO",
     image: teeRosaClaro,
     swatch: "oklch(0.9 0.06 350)",
-    checkoutUrl: "https://bbcheckout.lovable.app/checkout/ba0bdde3-2ca7-4157-bff5-462f93132ef4",
+    checkoutUrl: "https://www.bbcheckout.online/checkout/c5dc9bd8-048a-4bf5-a1da-6f4e9a05aff9",
   },
   {
     id: "branco",
     name: "BRANCO",
     image: teeBranco,
     swatch: "oklch(0.98 0 0)",
-    checkoutUrl: "https://bbcheckout.lovable.app/checkout/d01d2ce1-8820-4dd6-81d8-117436135a0a",
+    checkoutUrl: "https://www.bbcheckout.online/checkout/b4a944a6-b388-4156-85f9-352341264960",
   },
 ];
 

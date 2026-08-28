@@ -16,11 +16,11 @@ const buttonVariants = cva(
         secondary: "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        hero: "bg-foreground text-background font-display tracking-wide uppercase transition-all duration-300",
+        hero: "bg-foreground text-background font-display text-[13px] font-bold tracking-[0.14em] uppercase transition-colors duration-200 hover:bg-foreground/90",
         accent:
-          "bg-accent text-accent-foreground font-display tracking-wide uppercase transition-all duration-300",
+          "bg-accent text-accent-foreground font-display text-[13px] font-bold tracking-[0.14em] uppercase transition-colors duration-200",
         outlineHero:
-          "border border-foreground/30 bg-transparent font-display uppercase tracking-wide hover:bg-foreground hover:text-background transition-all duration-300",
+          "border border-foreground/40 bg-transparent font-display text-[13px] font-bold uppercase tracking-[0.14em] transition-colors duration-200 hover:bg-foreground hover:text-background",
         whatsapp: "bg-[oklch(0.68_0.16_150)] text-[oklch(0.14_0_0)] font-semibold hover:opacity-90",
       },
       size: {

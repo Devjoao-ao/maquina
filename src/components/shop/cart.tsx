@@ -1,5 +1,5 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
-import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
+import { MinusIcon, PlusIcon, ShoppingBagIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { COLORS, PRICE, SIZES, colorById, formatKz, type ColorId, type Size } from "./data";
@@ -85,7 +85,7 @@ function CartDrawer() {
         <div className="flex-1 overflow-y-auto p-6">
           {items.length === 0 ? (
             <div className="flex flex-col items-center justify-center gap-3 py-20 text-center">
-              <ShoppingBag className="h-10 w-10 text-muted-foreground" />
+              <ShoppingBagIcon className="h-10 w-10 text-muted-foreground" />
               <p className="text-sm text-muted-foreground">O teu carrinho está vazio.</p>
             </div>
           ) : (
@@ -108,7 +108,7 @@ function CartDrawer() {
                         aria-label="Remover produto"
                         className="shrink-0 text-muted-foreground transition-colors hover:text-destructive"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <TrashIcon className="h-4 w-4" />
                       </button>
                     </div>
 
@@ -146,7 +146,7 @@ function CartDrawer() {
                           aria-label="Diminuir"
                           onClick={() => update(item.id, { qty: item.qty - 1 })}
                         >
-                          <Minus className="h-3.5 w-3.5" />
+                          <MinusIcon className="h-3.5 w-3.5" />
                         </button>
                         <span className="w-6 text-center text-sm">{item.qty}</span>
                         <button
@@ -154,7 +154,7 @@ function CartDrawer() {
                           aria-label="Aumentar"
                           onClick={() => update(item.id, { qty: item.qty + 1 })}
                         >
-                          <Plus className="h-3.5 w-3.5" />
+                          <PlusIcon className="h-3.5 w-3.5" />
                         </button>
                       </div>
                       <span className="text-sm font-bold">{formatKz(item.qty * PRICE)}</span>
