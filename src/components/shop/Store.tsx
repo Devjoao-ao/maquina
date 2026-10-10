@@ -3,15 +3,12 @@ import { useNavigate, useSearch } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import {
   ArrowPathIcon,
-  BuildingLibraryIcon,
-  ChatBubbleLeftRightIcon,
   CheckIcon,
   ChevronLeftIcon,
   ClockIcon,
   ChevronRightIcon,
   ExclamationCircleIcon,
   InformationCircleIcon,
-  TruckIcon,
 } from "@heroicons/react/24/outline";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -206,8 +203,6 @@ export function Store() {
 
   return (
     <>
-      <TrustStrip />
-
       {/* PRODUTO */}
       <section className="mx-auto grid max-w-6xl gap-6 px-4 pb-10 pt-4 sm:px-6 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] md:gap-12 md:pt-10">
         <div className="min-w-0 md:sticky md:top-6 md:self-start">
@@ -568,31 +563,6 @@ export function Store() {
 
       <MobileBar colorName={selected.name} price={selected.price} hidden={!!registered} />
     </>
-  );
-}
-
-// Só factos reais do processo: entrega em Luanda, pagamento por referência, contacto da equipa.
-const TRUST = [
-  { icon: <TruckIcon />, text: `Entrega ao domicílio em ${DELIVERY_PROVINCE}` },
-  { icon: <BuildingLibraryIcon />, text: "Pagamento por referência no teu banco" },
-  { icon: <ChatBubbleLeftRightIcon />, text: "A nossa equipa contacta-te após o pagamento" },
-];
-
-function TrustStrip() {
-  return (
-    <div className="border-b border-border">
-      <ul className="mx-auto grid max-w-6xl grid-cols-3 gap-3 px-4 py-2.5 sm:px-6">
-        {TRUST.map((t) => (
-          <li
-            key={t.text}
-            className="flex flex-col items-center gap-1.5 text-center text-[11px] leading-snug text-muted-foreground sm:flex-row sm:justify-center sm:gap-2 sm:text-left sm:text-xs"
-          >
-            <span className="text-foreground [&_svg]:h-[18px] [&_svg]:w-[18px]">{t.icon}</span>
-            <span>{t.text}</span>
-          </li>
-        ))}
-      </ul>
-    </div>
   );
 }
 
