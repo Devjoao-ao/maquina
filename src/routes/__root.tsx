@@ -141,8 +141,47 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+/*
+ * Protecção contra capturas de ecrã em telemóvel. Os browsers não permitem
+ * bloquear o print do sistema; o melhor possível é esconder o conteúdo sempre
+ * que a página perde o foco (multitarefa, centro de controlo, ferramentas de
+ * captura) e impedir guardar/copiar imagens e texto com toque longo.
+ */
+function useScreenshotGuard() {
+  useEffect(() => {
+    const root = document.documentElement;
+    const hide = () => root.classList.add("screen-guard");
+    const show = () => {
+      if (document.visibilityState === "visible" && document.hasFocus()) {
+        root.classList.remove("screen-guard");
+      }
+    };
+    const onVisibility = () => (document.visibilityState === "hidden" ? hide() : show());
+    const prevent = (e: Event) => e.preventDefault();
+
+    document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener("blur", hide);
+    window.addEventListener("focus", show);
+    window.addEventListener("pagehide", hide);
+    window.addEventListener("pageshow", show);
+    document.addEventListener("contextmenu", prevent);
+    document.addEventListener("dragstart", prevent);
+
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("blur", hide);
+      window.removeEventListener("focus", show);
+      window.removeEventListener("pagehide", hide);
+      window.removeEventListener("pageshow", show);
+      document.removeEventListener("contextmenu", prevent);
+      document.removeEventListener("dragstart", prevent);
+    };
+  }, []);
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  useScreenshotGuard();
 
   return (
     <QueryClientProvider client={queryClient}>
