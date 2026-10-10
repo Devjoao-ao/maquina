@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { COLOR_IDS, PROVINCES, SIZES } from "@/components/shop/data";
+import { COLOR_IDS, DELIVERY_PROVINCE, LUANDA_MUNICIPIOS, SIZES } from "@/components/shop/data";
 
 // Telefone angolano: 9 dígitos começados por 9, com ou sem +244 / 244 / espaços.
 export const normalizePhone = (raw: string) => {
@@ -25,10 +25,15 @@ export const orderSchema = z.object({
     .string({ required_error: "Indica o teu número de telefone." })
     .transform(normalizePhone)
     .refine((v) => /^9\d{8}$/.test(v), "Número inválido. Usa 9 dígitos, ex.: 923 456 789."),
-  provincia: z.enum(PROVINCES, { errorMap: () => ({ message: "Escolhe a província." }) }),
-  municipio: text(2, 80, "Indica o município."),
+  provincia: z.literal(DELIVERY_PROVINCE, {
+    errorMap: () => ({ message: `De momento só entregamos em ${DELIVERY_PROVINCE}.` }),
+  }),
+  municipio: z.enum(LUANDA_MUNICIPIOS, {
+    errorMap: () => ({ message: "Escolhe o município." }),
+  }),
   bairro: text(2, 80, "Indica o bairro ou zona."),
-  endereco: text(5, 200, "Indica a rua, casa ou um ponto de referência."),
+  endereco: text(3, 200, "Indica a rua, avenida ou o endereço."),
+  referencia: text(3, 200, "Indica um ponto de referência perto de ti."),
   cor: z.enum(COLOR_IDS, { errorMap: () => ({ message: "Escolhe uma cor válida." }) }),
   tamanho: z.enum(SIZES, { errorMap: () => ({ message: "Escolhe o tamanho." }) }),
   quantidade: z.literal(1),

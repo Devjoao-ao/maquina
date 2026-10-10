@@ -15,7 +15,7 @@ export const Route = createFileRoute("/")({
       { title: `A MÁQUINA — Camiseta Original por ${formatKz(PRICE)}` },
       {
         name: "description",
-        content: `Camiseta original A MÁQUINA por ${formatKz(PRICE)}. Preto, rosa, rosa claro e branco. Tamanhos S a XXL. Entrega no teu endereço.`,
+        content: `Camiseta original A MÁQUINA por ${formatKz(PRICE)}. Preto, rosa, rosa claro e branco. Tamanhos S a XXL. Entrega ao domicílio em Luanda.`,
       },
       { property: "og:title", content: "A MÁQUINA — Camiseta Original" },
       {

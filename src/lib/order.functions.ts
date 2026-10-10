@@ -60,6 +60,7 @@ export const submitOrder = createServerFn({ method: "POST" })
         municipio: order.municipio,
         bairro: order.bairro,
         endereco: order.endereco,
+        referencia: order.referencia,
       },
       checkoutUrl: variant.checkoutUrl,
     };

@@ -3,30 +3,34 @@ import { useNavigate, useSearch } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import {
   ArrowPathIcon,
+  BuildingLibraryIcon,
+  ChatBubbleLeftRightIcon,
   CheckIcon,
   ChevronLeftIcon,
   ClockIcon,
   ChevronRightIcon,
-  CreditCardIcon,
   ExclamationCircleIcon,
-  MapPinIcon,
+  InformationCircleIcon,
   TruckIcon,
 } from "@heroicons/react/24/outline";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { submitOrder } from "@/lib/order.functions";
+import { trackPixel } from "@/lib/pixel";
 import { newOrderId, orderSchema, type OrderField, type OrderInput } from "@/lib/order-schema";
 import {
   COLORS,
-  PAYMENT_METHODS,
+  DELIVERY_PROVINCE,
+  LUANDA_MUNICIPIOS,
   PRODUCT_NAME,
-  PROVINCES,
+  PROMO_LABEL,
   SIZES,
   SIZE_GUIDE,
   colorById,
   isColorId,
   formatKz,
+  isPromoActive,
   whatsappLink,
   type ColorId,
   type Size,
@@ -39,6 +43,7 @@ type DeliveryForm = {
   municipio: string;
   bairro: string;
   endereco: string;
+  referencia: string;
   website: string;
 };
 
@@ -47,6 +52,19 @@ type FieldErrors = Partial<Record<OrderField, string | undefined>>;
 type Registered = { pedidoId: string; checkoutUrl: string; cor: ColorId; tamanho: Size };
 
 const DEFAULT_COLOR: ColorId = "preto";
+const LOCATION_PENDING = "Escolhe primeiro o município";
+
+// Parâmetros do píxel: só dados do produto, nunca dados pessoais.
+const pixelParams = (id: ColorId) => {
+  const v = colorById(id);
+  return {
+    content_ids: [v.id],
+    content_name: `${PRODUCT_NAME} — ${v.name}`,
+    content_type: "product" as const,
+    value: v.price,
+    currency: "AOA" as const,
+  };
+};
 
 export function Store() {
   const search = useSearch({ from: "/" });
@@ -62,10 +80,11 @@ export function Store() {
   const [form, setForm] = useState<DeliveryForm>({
     nome: "",
     telefone: "",
-    provincia: "",
+    provincia: DELIVERY_PROVINCE,
     municipio: "",
     bairro: "",
     endereco: "",
+    referencia: "",
     website: "",
   });
   const [errors, setErrors] = useState<FieldErrors>({});
@@ -80,6 +99,23 @@ export function Store() {
     if (id === color) return;
     navigate({ search: { cor: id }, replace: true, resetScroll: false });
   };
+
+  // Em ligações lentas o cliente pode preencher campos antes de o React carregar:
+  // aproveita esses valores em vez de os ignorar.
+  useEffect(() => {
+    const keys = ["nome", "municipio", "bairro", "endereco", "referencia", "telefone"] as const;
+    const patch: Partial<DeliveryForm> = {};
+    for (const key of keys) {
+      const el = document.getElementById(`f-${key}`) as HTMLInputElement | HTMLSelectElement | null;
+      if (el?.value) patch[key] = el.value;
+    }
+    if (Object.keys(patch).length > 0) setForm((f) => ({ ...f, ...patch }));
+  }, []);
+
+  // Píxel: o cliente viu esta cor (no carregamento e a cada troca).
+  useEffect(() => {
+    trackPixel("ViewContent", pixelParams(color));
+  }, [color]);
 
   // Se o cliente mudar cor ou tamanho depois de registar, volta a pedir confirmação.
   useEffect(() => {
@@ -97,9 +133,10 @@ export function Store() {
     nome: form.nome,
     telefone: form.telefone,
     provincia: form.provincia as OrderInput["provincia"],
-    municipio: form.municipio,
+    municipio: form.municipio as OrderInput["municipio"],
     bairro: form.bairro,
     endereco: form.endereco,
+    referencia: form.referencia,
     cor: color,
     tamanho: (size ?? "") as Size,
     quantidade: 1,
@@ -141,6 +178,7 @@ export function Store() {
     try {
       const result = await submit({ data: payload() });
       if (result.ok) {
+        trackPixel("InitiateCheckout", pixelParams(color), result.pedidoId);
         setRegistered({
           pedidoId: result.pedidoId,
           checkoutUrl: result.checkoutUrl,
@@ -163,9 +201,13 @@ export function Store() {
   };
 
   const help = whatsappLink(`Olá A MÁQUINA! Tenho uma dúvida sobre a ${PRODUCT_NAME}.`);
+  const promoActive = isPromoActive();
+  const locationReady = form.municipio !== "";
 
   return (
     <>
+      <TrustStrip />
+
       {/* PRODUTO */}
       <section className="mx-auto grid max-w-6xl gap-6 px-4 pb-10 pt-4 sm:px-6 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] md:gap-12 md:pt-10">
         <div className="min-w-0 md:sticky md:top-6 md:self-start">
@@ -176,10 +218,12 @@ export function Store() {
         <div className="min-w-0">
           <h1 className="text-[clamp(1.75rem,5vw,2.75rem)] leading-[1.05]">{PRODUCT_NAME}</h1>
           <p className="mt-3 font-display text-3xl">{formatKz(selected.price)}</p>
-          <p className="mt-3 inline-flex items-center gap-2 rounded-md bg-promo px-2.5 py-1 text-xs font-bold uppercase tracking-[0.08em] text-promo-foreground">
-            <ClockIcon className="h-3.5 w-3.5" />
-            Promoção a terminar em breve
-          </p>
+          {promoActive && (
+            <p className="mt-3 inline-flex items-center gap-2 rounded-md bg-promo px-2.5 py-1 text-xs font-bold uppercase tracking-[0.06em] text-promo-foreground">
+              <ClockIcon className="h-3.5 w-3.5 shrink-0" />
+              {PROMO_LABEL}
+            </p>
+          )}
 
           <div className="mt-6">
             <p className="text-sm">
@@ -246,21 +290,6 @@ export function Store() {
             <FieldError message={errors.tamanho} />
           </div>
 
-          <ul className="mt-8 space-y-3 border-t border-border pt-6 text-sm text-muted-foreground">
-            <Fact icon={<MapPinIcon />}>
-              <span className="text-foreground">1. Dados de entrega</span> — preenches o teu
-              endereço nesta página.
-            </Fact>
-            <Fact icon={<CreditCardIcon />}>
-              <span className="text-foreground">2. Pagamento</span> — {PAYMENT_METHODS.join(" ou ")}
-              , no app do banco ou num ATM. Depois envias o comprovativo.
-            </Fact>
-            <Fact icon={<TruckIcon />}>
-              <span className="text-foreground">3. Entrega em casa</span> — confirmado o pagamento,
-              entramos em contacto contigo e entregamos a encomenda no teu endereço.
-            </Fact>
-          </ul>
-
           <Button
             type="button"
             variant="hero"
@@ -268,7 +297,7 @@ export function Store() {
             className="mt-8 hidden h-12 w-full md:flex"
             onClick={() => document.getElementById("f-nome")?.focus()}
           >
-            Encomendar
+            Encomendar agora
           </Button>
         </div>
       </section>
@@ -280,7 +309,7 @@ export function Store() {
             <PaymentStep
               registered={registered}
               phone={form.telefone}
-              address={[form.bairro, form.municipio, form.provincia]
+              address={[form.endereco, form.bairro, form.municipio, form.provincia]
                 .map((v) => v.trim())
                 .filter(Boolean)
                 .join(", ")}
@@ -290,7 +319,7 @@ export function Store() {
             <form noValidate onSubmit={onSubmit}>
               <h2 className="text-2xl">Dados de entrega</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Sem conta, sem registo. Preenche e segue para o pagamento.
+                Entregamos ao domicílio em {DELIVERY_PROVINCE}. Sem conta, sem registo.
               </p>
 
               <div className="mt-6 grid gap-5 sm:grid-cols-2">
@@ -311,66 +340,53 @@ export function Store() {
                     className="h-12 bg-background"
                   />
                 </Field>
-                <Field
-                  id="telefone"
-                  label="Telefone / WhatsApp"
-                  error={errors.telefone}
-                  className="sm:col-span-2"
-                >
-                  <Input
-                    id="f-telefone"
-                    type="tel"
-                    inputMode="tel"
-                    autoComplete="tel-national"
-                    placeholder="Ex.: 923 456 789"
-                    maxLength={20}
-                    value={form.telefone}
-                    onChange={(e) => update("telefone", e.target.value)}
-                    aria-invalid={!!errors.telefone}
-                    className="h-12 bg-background"
-                  />
-                </Field>
                 <Field id="provincia" label="Província" error={errors.provincia}>
                   <select
                     id="f-provincia"
                     autoComplete="address-level1"
                     value={form.provincia}
                     onChange={(e) => update("provincia", e.target.value)}
-                    aria-invalid={!!errors.provincia}
+                    aria-describedby="provincia-nota"
+                    className="h-12 w-full rounded-md border border-input bg-background px-3 text-base md:text-sm"
+                  >
+                    <option value={DELIVERY_PROVINCE}>{DELIVERY_PROVINCE}</option>
+                  </select>
+                  <p id="provincia-nota" className="mt-1.5 text-xs text-muted-foreground">
+                    Nesta campanha entregamos apenas em {DELIVERY_PROVINCE}.
+                  </p>
+                </Field>
+                <Field id="municipio" label="Município" error={errors.municipio}>
+                  <select
+                    id="f-municipio"
+                    autoComplete="address-level2"
+                    value={form.municipio}
+                    onChange={(e) => update("municipio", e.target.value)}
+                    aria-invalid={!!errors.municipio}
                     className="h-12 w-full rounded-md border border-input bg-background px-3 text-base md:text-sm"
                   >
                     <option value="" disabled>
-                      Escolhe…
+                      Escolhe o município…
                     </option>
-                    {PROVINCES.map((p) => (
-                      <option key={p} value={p}>
-                        {p}
+                    {LUANDA_MUNICIPIOS.map((m) => (
+                      <option key={m} value={m}>
+                        {m}
                       </option>
                     ))}
                   </select>
                 </Field>
-                <Field id="municipio" label="Município" error={errors.municipio}>
-                  <Input
-                    id="f-municipio"
-                    autoComplete="address-level2"
-                    placeholder="Ex.: Talatona"
-                    maxLength={80}
-                    value={form.municipio}
-                    onChange={(e) => update("municipio", e.target.value)}
-                    aria-invalid={!!errors.municipio}
-                    className="h-12 bg-background"
-                  />
-                </Field>
                 <Field
                   id="bairro"
-                  label="Bairro / zona"
+                  label="Bairro ou zona"
                   error={errors.bairro}
                   className="sm:col-span-2"
                 >
                   <Input
                     id="f-bairro"
                     autoComplete="address-level3"
-                    placeholder="Ex.: Camama, Benfica"
+                    placeholder={
+                      locationReady ? "Ex.: Benfica, Golfe 2, Morro Bento" : LOCATION_PENDING
+                    }
+                    disabled={!locationReady}
                     maxLength={80}
                     value={form.bairro}
                     onChange={(e) => update("bairro", e.target.value)}
@@ -380,20 +396,67 @@ export function Store() {
                 </Field>
                 <Field
                   id="endereco"
-                  label="Endereço ou ponto de referência"
+                  label="Rua, avenida ou endereço"
                   error={errors.endereco}
                   className="sm:col-span-2"
                 >
                   <Input
                     id="f-endereco"
                     autoComplete="street-address"
-                    placeholder="Ex.: Rua 12, casa 34, perto da escola"
+                    placeholder={
+                      locationReady ? "Indica a rua, avenida ou o endereço" : LOCATION_PENDING
+                    }
+                    disabled={!locationReady}
                     maxLength={200}
                     value={form.endereco}
                     onChange={(e) => update("endereco", e.target.value)}
                     aria-invalid={!!errors.endereco}
                     className="h-12 bg-background"
                   />
+                </Field>
+                <Field
+                  id="referencia"
+                  label="Ponto de referência"
+                  error={errors.referencia}
+                  className="sm:col-span-2"
+                >
+                  <Input
+                    id="f-referencia"
+                    placeholder={
+                      locationReady
+                        ? "Ex.: perto de uma escola, mercado ou paragem conhecida"
+                        : LOCATION_PENDING
+                    }
+                    disabled={!locationReady}
+                    maxLength={200}
+                    value={form.referencia}
+                    onChange={(e) => update("referencia", e.target.value)}
+                    aria-invalid={!!errors.referencia}
+                    className="h-12 bg-background"
+                  />
+                </Field>
+                <Field
+                  id="telefone"
+                  label="Telefone para a entrega"
+                  error={errors.telefone}
+                  className="sm:col-span-2"
+                >
+                  <Input
+                    id="f-telefone"
+                    type="tel"
+                    inputMode="tel"
+                    autoComplete="tel-national"
+                    placeholder="Número de contacto para a entrega"
+                    maxLength={20}
+                    value={form.telefone}
+                    onChange={(e) => update("telefone", e.target.value)}
+                    aria-invalid={!!errors.telefone}
+                    aria-describedby="telefone-nota"
+                    className="h-12 bg-background"
+                  />
+                  <p id="telefone-nota" className="mt-1.5 text-xs text-muted-foreground">
+                    9 dígitos, ex.: 923 456 789. É por este número que te contactamos.
+                  </p>
                 </Field>
                 {/* anti-spam: escondido de pessoas */}
                 <div aria-hidden className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
@@ -427,11 +490,30 @@ export function Store() {
               </div>
               <div className="mt-3 flex justify-between text-sm text-muted-foreground">
                 <span>Entrega</span>
-                <span>Em casa, após o pagamento</span>
+                <span>Ao domicílio, em {DELIVERY_PROVINCE}</span>
               </div>
               <div className="mt-2 flex justify-between font-display text-xl">
                 <span>Total do produto</span>
                 <span>{formatKz(selected.price)}</span>
+              </div>
+              {promoActive && (
+                <p className="mt-2 text-right text-xs text-muted-foreground">{PROMO_LABEL}.</p>
+              )}
+
+              <div className="mt-6 rounded-md border border-border px-4 py-3.5 text-sm">
+                <p className="flex items-center gap-2 font-semibold">
+                  <InformationCircleIcon className="h-4 w-4 shrink-0" />
+                  Como funciona a entrega?
+                </p>
+                <p className="mt-2 text-muted-foreground">
+                  Preenche os teus dados e confirma o pedido. Depois pagas por referência, no app do
+                  banco ou num ATM, e envias o comprovativo. Após a confirmação do pagamento, a
+                  nossa equipa entra em contacto contigo para combinar a entrega na morada indicada.
+                </p>
+                <p className="mt-2 text-muted-foreground">
+                  Confirma que o telefone está correcto e que a morada tem detalhe suficiente para
+                  te encontrarmos.
+                </p>
               </div>
 
               {formError && (
@@ -457,7 +539,7 @@ export function Store() {
                     <ArrowPathIcon className="animate-spin" /> A registar…
                   </>
                 ) : (
-                  "Seguir para pagamento"
+                  "Confirmar pedido"
                 )}
               </Button>
               <p className="mt-3 text-center text-xs text-muted-foreground">
@@ -486,6 +568,31 @@ export function Store() {
 
       <MobileBar colorName={selected.name} price={selected.price} hidden={!!registered} />
     </>
+  );
+}
+
+// Só factos reais do processo: entrega em Luanda, pagamento por referência, contacto da equipa.
+const TRUST = [
+  { icon: <TruckIcon />, text: `Entrega ao domicílio em ${DELIVERY_PROVINCE}` },
+  { icon: <BuildingLibraryIcon />, text: "Pagamento por referência no teu banco" },
+  { icon: <ChatBubbleLeftRightIcon />, text: "A nossa equipa contacta-te após o pagamento" },
+];
+
+function TrustStrip() {
+  return (
+    <div className="border-b border-border">
+      <ul className="mx-auto grid max-w-6xl grid-cols-3 gap-3 px-4 py-2.5 sm:px-6">
+        {TRUST.map((t) => (
+          <li
+            key={t.text}
+            className="flex flex-col items-center gap-1.5 text-center text-[11px] leading-snug text-muted-foreground sm:flex-row sm:justify-center sm:gap-2 sm:text-left sm:text-xs"
+          >
+            <span className="text-foreground [&_svg]:h-[18px] [&_svg]:w-[18px]">{t.icon}</span>
+            <span>{t.text}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
@@ -557,7 +664,7 @@ function ColorStrip({ color, onSelect }: { color: ColorId; onSelect: (id: ColorI
   }, [color]);
 
   return (
-    <div className="-mx-4 mt-3 flex snap-x snap-mandatory scroll-px-4 gap-2.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-4 sm:overflow-visible sm:px-0 [&::-webkit-scrollbar]:hidden">
+    <div className="mt-3 flex snap-x snap-mandatory gap-2.5 overflow-x-auto pb-1 [scrollbar-width:none] sm:gap-3 sm:overflow-visible [&::-webkit-scrollbar]:hidden">
       {COLORS.map((c) => {
         const active = c.id === color;
         return (
@@ -569,7 +676,7 @@ function ColorStrip({ color, onSelect }: { color: ColorId; onSelect: (id: ColorI
             type="button"
             onClick={() => onSelect(c.id)}
             aria-pressed={active}
-            className="w-[38%] shrink-0 snap-start text-left sm:w-auto"
+            className="w-[29%] shrink-0 snap-start text-left sm:w-[19%]"
           >
             <span
               className={`relative block overflow-hidden rounded-md border-2 transition-colors duration-150 ${
@@ -621,7 +728,7 @@ function PaymentStep({
         <span className="grid h-6 w-6 place-items-center rounded-[3px] bg-foreground text-background">
           <CheckIcon className="h-4 w-4" />
         </span>
-        Pedido confirmado
+        Dados de entrega confirmados
       </p>
       <h2 className="mt-4 text-2xl">Último passo: pagamento</h2>
       <p className="mt-2 text-sm text-muted-foreground">
@@ -629,7 +736,10 @@ function PaymentStep({
         {variant.name} · Tamanho {registered.tamanho} · {formatKz(variant.price)}
       </p>
       <ol className="mt-4 space-y-2 text-sm text-muted-foreground">
-        <li>1. Paga por referência no app do banco ou num ATM e envia o comprovativo.</li>
+        <li>
+          1. Paga por referência no app do banco ou num ATM e envia o comprovativo. A encomenda fica
+          confirmada quando o pagamento for verificado.
+        </li>
         <li>
           2. Confirmado o pagamento, entramos em contacto contigo pelo{" "}
           <span className="text-foreground">{phone.trim()}</span>.
@@ -646,7 +756,14 @@ function PaymentStep({
         </li>
       </ol>
       <Button variant="hero" size="xl" className="mt-6 h-14 w-full text-sm" asChild>
-        <a href={registered.checkoutUrl}>Pagar {formatKz(variant.price)}</a>
+        <a
+          href={registered.checkoutUrl}
+          onClick={() =>
+            trackPixel("AddPaymentInfo", pixelParams(registered.cor), registered.pedidoId)
+          }
+        >
+          Pagar {formatKz(variant.price)}
+        </a>
       </Button>
       <button
         type="button"
@@ -704,7 +821,7 @@ function MobileBar({
         className="h-12 px-8"
         onClick={() => document.getElementById("pedido")?.scrollIntoView({ behavior: "smooth" })}
       >
-        Encomendar
+        Encomendar agora
       </Button>
     </div>
   );
@@ -763,15 +880,4 @@ function Field({
 function FieldError({ message }: { message: string | undefined }) {
   if (!message) return null;
   return <p className="mt-1.5 text-xs text-destructive">{message}</p>;
-}
-
-function Fact({ icon, children }: { icon: ReactNode; children: ReactNode }) {
-  return (
-    <li className="flex gap-3">
-      <span className="mt-0.5 h-4 w-4 shrink-0 text-foreground [&_svg]:h-4 [&_svg]:w-4">
-        {icon}
-      </span>
-      <span>{children}</span>
-    </li>
-  );
 }

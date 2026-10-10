@@ -86,26 +86,33 @@ export const SIZE_GUIDE = [
   { size: "XXL", chest: "120 cm", length: "76 cm" },
 ];
 
-export const PROVINCES = [
-  "Luanda",
-  "Benguela",
-  "Huambo",
-  "Huíla",
-  "Cabinda",
-  "Malanje",
-  "Namibe",
-  "Uíge",
-  "Cuanza Norte",
-  "Cuanza Sul",
-  "Bié",
-  "Moxico",
-  "Zaire",
-  "Bengo",
-  "Lunda Norte",
-  "Lunda Sul",
-  "Cunene",
-  "Cuando Cubango",
+// Campanha actual: entregas só na província de Luanda.
+export const DELIVERY_PROVINCE = "Luanda";
+
+// Municípios da província de Luanda (Lei n.º 14/24, divisão político-administrativa).
+export const LUANDA_MUNICIPIOS = [
+  "Belas",
+  "Cacuaco",
+  "Camama",
+  "Cazenga",
+  "Hoji ya Henda",
+  "Ingombota",
+  "Kilamba",
+  "Kilamba Kiaxi",
+  "Maianga",
+  "Mulenvos",
+  "Mussulo",
+  "Rangel",
+  "Samba",
+  "Sambizanga",
+  "Talatona",
+  "Viana",
 ] as const;
+
+// Fim da promoção (hora de Angola). Depois desta data o aviso deixa de aparecer.
+export const PROMO_END = new Date("2026-10-15T23:59:59+01:00");
+export const PROMO_LABEL = "Promoção especial válida até dia 15 de Outubro";
+export const isPromoActive = (now = new Date()) => now.getTime() <= PROMO_END.getTime();
 
 export const isColorId = (value: unknown): value is ColorId =>
   typeof value === "string" && (COLOR_IDS as readonly string[]).includes(value);
