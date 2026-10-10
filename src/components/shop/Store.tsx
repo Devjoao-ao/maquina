@@ -534,7 +534,7 @@ export function Store() {
                     <ArrowPathIcon className="animate-spin" /> A registar…
                   </>
                 ) : (
-                  "Confirmar pedido"
+                  "Gerar referência de pagamento"
                 )}
               </Button>
               <p className="mt-3 text-center text-xs text-muted-foreground">
