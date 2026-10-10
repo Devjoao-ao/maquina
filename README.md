@@ -360,3 +360,20 @@ cd <repository-name>
 npm i
 npm run dev
 ```
+
+## Configuração da página de venda
+
+**Links por cor** — em `src/components/shop/data.ts`, cada cor de `COLORS` tem `checkoutUrl`
+(link de pagamento) e `price` (tem de ser igual ao valor cobrado nesse checkout). Para trocar, altera só essas linhas. `null` = cor visível mas não encomendável.
+
+**Link directo para uma cor** (anúncios/redes sociais): `/?cor=preto`, `/?cor=rosa`,
+`/?cor=rosa-claro`, `/?cor=branco`. Valores desconhecidos abrem a cor por defeito (preto).
+
+**Registo dos dados de entrega** — o projecto não tem base de dados. Ao confirmar, o servidor valida
+o pedido e envia-o (POST JSON) para o endereço em `ORDER_WEBHOOK_URL` (ex.: Google Apps Script →
+Google Sheets, Make, Zapier). Opcional: `ORDER_WEBHOOK_SECRET`, enviado no cabeçalho `x-order-secret`.
+Sem `ORDER_WEBHOOK_URL` o pedido é validado e o cliente segue para o pagamento, mas os dados de
+entrega não ficam guardados em lado nenhum.
+O campo `pedidoId` repete-se se o cliente corrigir os dados — usa-o para ignorar duplicados.
+
+**WhatsApp de apoio** — `SUPPORT_WHATSAPP` em `data.ts` (null = escondido).

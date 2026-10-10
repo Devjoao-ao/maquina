@@ -1,21 +1,26 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CartProvider } from "@/components/shop/cart";
 import { Header } from "@/components/shop/Header";
 import { Store } from "@/components/shop/Store";
+import { PRICE, formatKz, isColorId, type ColorId } from "@/components/shop/data";
+
+// Link directo para uma cor: /?cor=preto | rosa | rosa-claro | branco
+// Valores desconhecidos são ignorados (fica a cor por defeito).
+type Search = { cor?: ColorId };
 
 export const Route = createFileRoute("/")({
+  validateSearch: (search: Record<string, unknown>): Search =>
+    isColorId(search["cor"]) ? { cor: search["cor"] } : {},
   head: () => ({
     meta: [
-      { title: "A MÁQUINA — Camisetas Streetwear por 12.000 Kz" },
+      { title: `A MÁQUINA — Camiseta Original por ${formatKz(PRICE)}` },
       {
         name: "description",
-        content:
-          "Camisetas originais A MÁQUINA por 12.000 Kz com entrega gratuita em Angola. Preto, rosa, rosa claro e branco. Tamanhos S a XXL.",
+        content: `Camiseta original A MÁQUINA por ${formatKz(PRICE)}. Preto, rosa, rosa claro e branco. Tamanhos S a XXL. Entrega no teu endereço.`,
       },
-      { property: "og:title", content: "A MÁQUINA — Veste a tua atitude" },
+      { property: "og:title", content: "A MÁQUINA — Camiseta Original" },
       {
         property: "og:description",
-        content: "Camisetas streetwear A MÁQUINA por 12.000 Kz com entrega grátis.",
+        content: `Escolhe a tua cor e encomenda por ${formatKz(PRICE)}.`,
       },
     ],
   }),
@@ -24,11 +29,11 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   return (
-    <CartProvider>
+    <>
       <Header />
-      <main className="pb-24 md:pb-0">
+      <main>
         <Store />
       </main>
-    </CartProvider>
+    </>
   );
 }

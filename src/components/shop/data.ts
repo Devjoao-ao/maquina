@@ -2,69 +2,76 @@ import teePreto from "@/assets/tee-preta.jpg";
 import teeRosa from "@/assets/tee-rosa.jpg";
 import teeRosaClaro from "@/assets/tee-rosa-claro.jpg";
 import teeBranco from "@/assets/tee-branca.jpg";
-import cliente1 from "@/assets/cliente-1.jpg";
-import cliente2 from "@/assets/cliente-2.jpg";
-import cliente3 from "@/assets/cliente-3.jpg";
+import teePretoThumb from "@/assets/tee-preta-thumb.webp";
+import teeRosaThumb from "@/assets/tee-rosa-thumb.webp";
+import teeRosaClaroThumb from "@/assets/tee-rosa-claro-thumb.webp";
+import teeBrancoThumb from "@/assets/tee-branca-thumb.webp";
 
-export const PRICE = 12000;
-export const OLD_PRICE = 25000;
-export const WHATSAPP_NUMBER = "244900000000";
+export const PRODUCT_NAME = "A MÁQUINA — Camiseta Original";
+// Preço base. Cada cor tem o seu \`price\`, que tem de ser igual ao valor cobrado no seu checkout.
+export const PRICE = 15000;
 
-export type ColorId = "preto" | "rosa" | "rosa-claro" | "branco";
+// Número de apoio (só dígitos, com indicativo, ex.: "244923000000").
+// Fica null até existir um número real — enquanto for null, nada de WhatsApp é mostrado.
+export const SUPPORT_WHATSAPP: string | null = null;
 
-export const COLORS: {
+// Método aceite pelo checkout externo (EntityPay). Pagamento antes do envio.
+export const PAYMENT_METHODS = ["Por referência (entidade + referência)"];
+
+export const COLOR_IDS = ["preto", "rosa", "rosa-claro", "branco"] as const;
+export type ColorId = (typeof COLOR_IDS)[number];
+
+export type ColorVariant = {
   id: ColorId;
   name: string;
   image: string;
+  thumb: string;
   swatch: string;
-  checkoutUrl: string;
-}[] = [
+  /** Preço em Kz — tem de coincidir com o valor do checkout desta cor. */
+  price: number;
+  /**
+   * Link de pagamento desta cor. Para trocar, altera só esta linha.
+   * null = cor fica visível mas não pode ser encomendada.
+   */
+  checkoutUrl: string | null;
+};
+
+export const COLORS: ColorVariant[] = [
   {
     id: "preto",
-    name: "PRETO",
+    name: "Preto",
     image: teePreto,
+    thumb: teePretoThumb,
     swatch: "oklch(0.18 0 0)",
-    checkoutUrl: "https://www.bbcheckout.online/checkout/31748447-3ba7-4f07-b96d-c7f39391a2f8",
+    price: PRICE,
+    checkoutUrl: "https://emis-checkout.lovable.app/checkout/bb01f95165",
   },
   {
     id: "rosa",
-    name: "ROSA",
+    name: "Rosa",
     image: teeRosa,
+    thumb: teeRosaThumb,
     swatch: "oklch(0.72 0.19 350)",
-    checkoutUrl: "https://www.bbcheckout.online/checkout/8e8f678c-4859-4b22-8f20-4dfcbcd01a5b",
+    price: PRICE,
+    checkoutUrl: "https://emis-checkout.lovable.app/checkout/372a47e889",
   },
   {
     id: "rosa-claro",
-    name: "ROSA CLARO",
+    name: "Rosa claro",
     image: teeRosaClaro,
+    thumb: teeRosaClaroThumb,
     swatch: "oklch(0.9 0.06 350)",
-    checkoutUrl: "https://www.bbcheckout.online/checkout/c5dc9bd8-048a-4bf5-a1da-6f4e9a05aff9",
+    price: PRICE,
+    checkoutUrl: "https://emis-checkout.lovable.app/checkout/1cd7e2ff1a",
   },
   {
     id: "branco",
-    name: "BRANCO",
+    name: "Branco",
     image: teeBranco,
+    thumb: teeBrancoThumb,
     swatch: "oklch(0.98 0 0)",
-    checkoutUrl: "https://www.bbcheckout.online/checkout/b4a944a6-b388-4156-85f9-352341264960",
-  },
-];
-
-
-export const TESTIMONIALS = [
-  {
-    name: "Milton Kiala",
-    avatar: cliente1,
-    text: "Qualidade top, o tecido é grosso e o caimento oversize é perfeito. Chegou em 2 dias em Luanda.",
-  },
-  {
-    name: "Nadia Bumba",
-    avatar: cliente2,
-    text: "Comprei a rosa e amei! A estampa não desbota e o conforto é outro nível.",
-  },
-  {
-    name: "Sofia Almeida",
-    avatar: cliente3,
-    text: "Entrega gratuita e atendimento rápido. Já encomendei a segunda camiseta.",
+    price: 25000,
+    checkoutUrl: "https://emis-checkout.lovable.app/checkout/7c179c0908",
   },
 ];
 
@@ -98,12 +105,18 @@ export const PROVINCES = [
   "Lunda Sul",
   "Cunene",
   "Cuando Cubango",
-];
+] as const;
 
+export const isColorId = (value: unknown): value is ColorId =>
+  typeof value === "string" && (COLOR_IDS as readonly string[]).includes(value);
+
+// Formatação manual: igual no servidor e no browser (evita diferenças de hidratação).
 export const formatKz = (value: number) =>
-  `${value.toLocaleString("pt-AO").replace(/\u00a0/g, ".")} Kz`;
+  `${Math.round(value)
+    .toString()
+    .replace(/\B(?=(\d{3})+(?!\d))/g, ".")} Kz`;
 
 export const colorById = (id: ColorId) => COLORS.find((c) => c.id === id)!;
 
 export const whatsappLink = (message: string) =>
-  `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+  SUPPORT_WHATSAPP ? `https://wa.me/${SUPPORT_WHATSAPP}?text=${encodeURIComponent(message)}` : null;
