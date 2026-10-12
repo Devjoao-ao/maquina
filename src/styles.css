@@ -19,9 +19,9 @@
  */
 
 @theme inline {
-  --font-graffiti: "Ubuntu", system-ui, sans-serif;
-  --font-display: "Ubuntu", system-ui, sans-serif;
-  --font-sans: "Ubuntu", system-ui, sans-serif;
+  --font-graffiti: "Poppins", system-ui, sans-serif;
+  --font-display: "Poppins", system-ui, sans-serif;
+  --font-sans: "Inter", system-ui, sans-serif;
   --shadow-glow: none;
   --radius-sm: 3px;
   --radius-md: 4px;
@@ -159,9 +159,8 @@
   h3,
   .font-display {
     font-family: var(--font-display);
-    font-weight: 800;
-    letter-spacing: -0.015em;
-    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: -0.01em;
   }
 
   p,

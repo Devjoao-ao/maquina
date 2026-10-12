@@ -304,11 +304,11 @@ export function LocationGate({
       aria-labelledby="location-gate-title"
       className="fixed inset-0 z-50 flex items-end bg-foreground/40"
     >
-      <div className="w-full rounded-t-2xl bg-background px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-5 shadow-2xl">
+      <div className="w-full rounded-t-2xl bg-background px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4 shadow-2xl">
         <p className="text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">
           A MÁQUINA
         </p>
-        <h2 id="location-gate-title" className="mt-2 text-2xl leading-tight">
+        <h2 id="location-gate-title" className="mt-1.5 text-xl leading-tight">
           Recebe em casa, hoje ou amanhã
         </h2>
         <p className="mt-1.5 text-sm text-muted-foreground">
@@ -316,11 +316,11 @@ export function LocationGate({
           províncias, confirmamos contigo o prazo.
         </p>
 
-        <p className="mt-4 text-sm">
+        <p className="mt-3 text-sm">
           Partilha a tua localização para vermos se entregamos na tua zona e para o entregador
           chegar até ti sem te ligar a pedir direcções.
         </p>
-        <ul className="mt-3 space-y-1.5 text-sm text-muted-foreground">
+        <ul className="mt-2.5 space-y-1 text-[13px] text-muted-foreground">
           <li className="flex items-start gap-2">
             <CheckIcon className="mt-0.5 h-4 w-4 shrink-0 text-foreground" />
             Usamos a localização só para a entrega.
@@ -339,7 +339,7 @@ export function LocationGate({
           type="button"
           variant="hero"
           size="xl"
-          className="mt-5 h-14 w-full text-sm"
+          className="mt-4 h-12 w-full text-sm"
           onClick={onDetect}
           disabled={locating}
           aria-busy={locating}
@@ -362,7 +362,7 @@ export function LocationGate({
         <button
           type="button"
           onClick={() => setSkipped(true)}
-          className="mt-3 h-11 w-full text-sm font-medium underline underline-offset-4"
+          className="mt-1 h-10 w-full text-[13px] font-medium underline underline-offset-4"
         >
           Ver o produto e escrever a morada à mão
         </button>

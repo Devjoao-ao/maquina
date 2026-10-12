@@ -279,8 +279,8 @@ export function Store() {
         </div>
 
         <div className="min-w-0">
-          <h1 className="text-[clamp(1.75rem,5vw,2.75rem)] leading-[1.05]">{PRODUCT_NAME}</h1>
-          <p className="mt-3 font-display text-3xl">{formatKz(selected.price)}</p>
+          <h1 className="text-[clamp(1.25rem,4.5vw,1.875rem)] leading-tight">{PRODUCT_NAME}</h1>
+          <p className="mt-2 font-display text-2xl">{formatKz(selected.price)}</p>
           {promoActive && (
             <p className="mt-3 inline-flex items-center gap-2 rounded-md bg-promo px-2.5 py-1 text-xs font-bold uppercase tracking-[0.06em] text-promo-foreground">
               <ClockIcon className="h-3.5 w-3.5 shrink-0" />
@@ -340,7 +340,7 @@ export function Store() {
                     setSize(s);
                     setErrors((e) => ({ ...e, tamanho: undefined }));
                   }}
-                  className={`h-12 rounded-md border text-sm font-semibold transition-colors duration-150 ${
+                  className={`h-11 rounded-md border text-sm font-semibold transition-colors duration-150 ${
                     size === s
                       ? "border-foreground bg-foreground text-background"
                       : "border-border hover:border-foreground/50"
@@ -357,7 +357,7 @@ export function Store() {
             type="button"
             variant="hero"
             size="xl"
-            className="mt-8 hidden h-12 w-full md:flex"
+            className="mt-8 hidden h-11 w-full md:flex"
             onClick={() => document.getElementById("f-nome")?.focus()}
           >
             Encomendar agora
@@ -380,7 +380,7 @@ export function Store() {
             />
           ) : (
             <form noValidate onSubmit={onSubmit}>
-              <h2 className="text-2xl">Dados de entrega</h2>
+              <h2 className="text-xl">Dados de entrega</h2>
               <p className="mt-1 text-sm text-muted-foreground">Sem conta, sem registo.</p>
 
               <LocationCard
@@ -408,7 +408,7 @@ export function Store() {
                     value={form.nome}
                     onChange={(e) => update("nome", e.target.value)}
                     aria-invalid={!!errors.nome}
-                    className="h-12 bg-background"
+                    className="h-11 bg-background"
                   />
                 </Field>
                 <Field id="provincia" label="Província" error={errors.provincia}>
@@ -418,7 +418,7 @@ export function Store() {
                     value={form.provincia}
                     onChange={(e) => changeProvincia(e.target.value)}
                     aria-invalid={!!errors.provincia}
-                    className="h-12 w-full rounded-md border border-input bg-background px-3 text-base md:text-sm"
+                    className="h-11 w-full rounded-md border border-input bg-background px-3 text-base md:text-sm"
                   >
                     <option value="" disabled>
                       Escolhe a província…
@@ -438,7 +438,7 @@ export function Store() {
                     onChange={(e) => changeMunicipio(e.target.value)}
                     disabled={!provincia}
                     aria-invalid={!!errors.municipio}
-                    className="h-12 w-full rounded-md border border-input bg-background px-3 text-base disabled:opacity-60 md:text-sm"
+                    className="h-11 w-full rounded-md border border-input bg-background px-3 text-base disabled:opacity-60 md:text-sm"
                   >
                     <option value="" disabled>
                       {provincia ? "Escolhe o município…" : "Escolhe primeiro a província"}
@@ -472,7 +472,7 @@ export function Store() {
                     value={form.bairro}
                     onChange={(e) => update("bairro", e.target.value)}
                     aria-invalid={!!errors.bairro}
-                    className="h-12 bg-background"
+                    className="h-11 bg-background"
                   />
                 </Field>
                 <Field
@@ -492,7 +492,7 @@ export function Store() {
                     value={form.endereco}
                     onChange={(e) => update("endereco", e.target.value)}
                     aria-invalid={!!errors.endereco}
-                    className="h-12 bg-background"
+                    className="h-11 bg-background"
                   />
                 </Field>
                 <Field
@@ -513,7 +513,7 @@ export function Store() {
                     value={form.referencia}
                     onChange={(e) => update("referencia", e.target.value)}
                     aria-invalid={!!errors.referencia}
-                    className="h-12 bg-background"
+                    className="h-11 bg-background"
                   />
                 </Field>
                 <Field
@@ -533,7 +533,7 @@ export function Store() {
                     onChange={(e) => update("telefone", e.target.value)}
                     aria-invalid={!!errors.telefone}
                     aria-describedby="telefone-nota"
-                    className="h-12 bg-background"
+                    className="h-11 bg-background"
                   />
                   <p id="telefone-nota" className="mt-1.5 text-xs text-muted-foreground">
                     9 dígitos, ex.: 923 456 789. É por este número que te contactamos.
@@ -567,13 +567,13 @@ export function Store() {
                     {selected.name} · Tamanho {size ?? "—"} · 1 unidade
                   </p>
                 </div>
-                <p className="shrink-0 font-display text-lg">{formatKz(selected.price)}</p>
+                <p className="shrink-0 font-display text-base">{formatKz(selected.price)}</p>
               </div>
               <div className="mt-3 flex justify-between gap-4 text-sm text-muted-foreground">
                 <span>Entrega</span>
                 <span className="text-right">{deliveryLabel(coverage, provincia)}</span>
               </div>
-              <div className="mt-2 flex justify-between font-display text-xl">
+              <div className="mt-2 flex justify-between font-display text-lg">
                 <span>Total do produto</span>
                 <span>{formatKz(selected.price)}</span>
               </div>
@@ -618,7 +618,7 @@ export function Store() {
                 size="xl"
                 disabled={submitting}
                 aria-busy={submitting}
-                className="mt-6 h-14 w-full text-sm"
+                className="mt-6 h-12 w-full text-sm"
               >
                 {submitting ? (
                   <>
@@ -797,7 +797,7 @@ function PaymentStep({
           </span>
           Pedido recebido
         </p>
-        <h2 className="mt-4 text-2xl">Vamos confirmar a entrega</h2>
+        <h2 className="mt-4 text-xl">Vamos confirmar a entrega</h2>
         <p className="mt-2 text-sm text-muted-foreground">
           Pedido <span className="font-semibold text-foreground">#{registered.pedidoId}</span> ·{" "}
           {variant.name} · Tamanho {registered.tamanho} · {formatKz(variant.price)}
@@ -834,7 +834,7 @@ function PaymentStep({
         </span>
         Dados de entrega confirmados
       </p>
-      <h2 className="mt-4 text-2xl">Último passo: pagamento</h2>
+      <h2 className="mt-4 text-xl">Último passo: pagamento</h2>
       <p className="mt-2 text-sm text-muted-foreground">
         Pedido <span className="font-semibold text-foreground">#{registered.pedidoId}</span> ·{" "}
         {variant.name} · Tamanho {registered.tamanho} · {formatKz(variant.price)}
@@ -859,7 +859,7 @@ function PaymentStep({
           .
         </li>
       </ol>
-      <Button variant="hero" size="xl" className="mt-6 h-14 w-full text-sm" asChild>
+      <Button variant="hero" size="xl" className="mt-6 h-12 w-full text-sm" asChild>
         <a
           href={checkoutUrl}
           onClick={() =>
@@ -952,12 +952,12 @@ function MobileBar({
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 flex items-center gap-3 border-t border-border bg-background px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:hidden">
       <div className="min-w-0 flex-1">
-        <p className="font-display text-lg leading-none">{formatKz(price)}</p>
+        <p className="font-display text-base leading-none">{formatKz(price)}</p>
         <p className="mt-1 truncate text-xs text-muted-foreground">{colorName}</p>
       </div>
       <Button
         variant="hero"
-        className="h-12 px-8"
+        className="h-11 px-6"
         onClick={() => document.getElementById("pedido")?.scrollIntoView({ behavior: "smooth" })}
       >
         Encomendar agora
