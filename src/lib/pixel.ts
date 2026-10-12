@@ -13,7 +13,7 @@ s.parentNode.insertBefore(t,s)}(window,document,'script',
 fbq('init', '${FB_PIXEL_ID}');
 fbq('track', 'PageView');`;
 
-type StandardEvent = "ViewContent" | "InitiateCheckout" | "AddPaymentInfo";
+type StandardEvent = "ViewContent" | "InitiateCheckout" | "AddPaymentInfo" | "Lead";
 
 type ProductParams = {
   content_ids: string[];

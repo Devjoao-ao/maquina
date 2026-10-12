@@ -1,7 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getRequestHeader } from "@tanstack/react-start/server";
 import { PRODUCT_NAME, colorById } from "@/components/shop/data";
 import { orderSchema, type OrderField, type SubmitOrderResult } from "./order-schema";
+import { coverageFor } from "./delivery";
+import { isSameOrigin } from "./same-origin.server";
 
 /**
  * Regista os dados de entrega antes do pagamento.
@@ -36,17 +37,42 @@ export const submitOrder = createServerFn({ method: "POST" })
       return { ok: false, error: `A cor ${variant.name} não está disponível de momento.` };
     }
 
+    // A cobertura é sempre decidida no servidor, com a mesma configuração da página.
+    const coverage = coverageFor(order.provincia, order.municipio);
+    const confirmada = coverage.estado === "confirmada";
+    const success: SubmitOrderResult = confirmada
+      ? {
+          ok: true,
+          pedidoId: order.pedidoId,
+          cobertura: "confirmada",
+          checkoutUrl: variant.checkoutUrl,
+        }
+      : { ok: true, pedidoId: order.pedidoId, cobertura: "a-confirmar" };
+
     const webhookUrl = process.env["ORDER_WEBHOOK_URL"];
     if (!webhookUrl) {
+      if (!confirmada) {
+        // Sem registo, a equipa nunca veria o pedido: não prometer um contacto que não acontece.
+        console.warn(
+          `[pedido] ${order.pedidoId} recusado: entrega a confirmar sem ORDER_WEBHOOK_URL.`,
+        );
+        return {
+          ok: false,
+          error: `Ainda não conseguimos receber pedidos para ${order.provincia} pelo site. Tenta mais tarde.`,
+        };
+      }
       console.warn(`[pedido] ${order.pedidoId} validado sem registo (ORDER_WEBHOOK_URL vazio).`);
-      return { ok: true, pedidoId: order.pedidoId, checkoutUrl: variant.checkoutUrl };
+      return success;
     }
 
     // Preço e nome vêm sempre do servidor, nunca do browser.
+    // O formulário nunca marca o pagamento como feito: isso só acontece após verificação.
     const payload = {
       pedidoId: order.pedidoId,
       criadoEm: new Date().toISOString(),
-      estado: "aguarda_pagamento",
+      estado: confirmada ? "aguarda_pagamento" : "aguarda_confirmacao_entrega",
+      estadoPagamento: confirmada ? "pendente" : "nao_iniciado",
+      destino: `${order.provincia} — ${order.municipio}`,
       produto: PRODUCT_NAME,
       cor: variant.id,
       corNome: variant.name,
@@ -61,8 +87,14 @@ export const submitOrder = createServerFn({ method: "POST" })
         bairro: order.bairro,
         endereco: order.endereco,
         referencia: order.referencia,
+        origemLocalizacao: order.origemLocalizacao,
+        cobertura: coverage.estado,
+        metodo: confirmada ? coverage.zona.metodo : null,
+        custo: confirmada ? coverage.zona.custo : null,
+        prazo: confirmada ? coverage.zona.prazo : null,
       },
-      checkoutUrl: variant.checkoutUrl,
+      // Só há link de pagamento quando a entrega está confirmada.
+      checkoutUrl: confirmada ? variant.checkoutUrl : null,
     };
 
     try {
@@ -87,17 +119,5 @@ export const submitOrder = createServerFn({ method: "POST" })
       return { ok: false, error: "Não foi possível registar o pedido. Tenta novamente." };
     }
 
-    return { ok: true, pedidoId: order.pedidoId, checkoutUrl: variant.checkoutUrl };
+    return success;
   });
-
-// Bloqueia envios feitos a partir de outros sites (CSRF simples).
-function isSameOrigin() {
-  const origin = getRequestHeader("origin");
-  const host = getRequestHeader("x-forwarded-host") ?? getRequestHeader("host");
-  if (!origin || !host) return true;
-  try {
-    return new URL(origin).host === host;
-  } catch {
-    return false;
-  }
-}

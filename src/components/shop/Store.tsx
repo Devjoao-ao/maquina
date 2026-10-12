@@ -16,10 +16,11 @@ import { Label } from "@/components/ui/label";
 import { submitOrder } from "@/lib/order.functions";
 import { trackPixel } from "@/lib/pixel";
 import { newOrderId, orderSchema, type OrderField, type OrderInput } from "@/lib/order-schema";
+import { MUNICIPIOS, PROVINCIAS, isMunicipioDe, isProvincia } from "@/lib/angola";
+import { coverageFor, type Coverage } from "@/lib/delivery";
+import { LocationCard, useLocationDetect } from "./LocationDetect";
 import {
   COLORS,
-  DELIVERY_PROVINCE,
-  LUANDA_MUNICIPIOS,
   PRODUCT_NAME,
   PROMO_LABEL,
   SIZES,
@@ -46,7 +47,13 @@ type DeliveryForm = {
 
 type FieldErrors = Partial<Record<OrderField, string | undefined>>;
 
-type Registered = { pedidoId: string; checkoutUrl: string; cor: ColorId; tamanho: Size };
+type Registered = {
+  pedidoId: string;
+  /** null = entrega a confirmar pela equipa; ainda não há pagamento. */
+  checkoutUrl: string | null;
+  cor: ColorId;
+  tamanho: Size;
+};
 
 const DEFAULT_COLOR: ColorId = "preto";
 const LOCATION_PENDING = "Escolhe primeiro o município";
@@ -77,7 +84,7 @@ export function Store() {
   const [form, setForm] = useState<DeliveryForm>({
     nome: "",
     telefone: "",
-    provincia: DELIVERY_PROVINCE,
+    provincia: "",
     municipio: "",
     bairro: "",
     endereco: "",
@@ -92,6 +99,20 @@ export function Store() {
   // O mesmo id é reutilizado em novas tentativas do mesmo pedido (evita duplicados no destino).
   const orderId = useRef<string | null>(null);
 
+  // Localização detectada: preenche só o que foi identificado, sem apagar o resto do formulário.
+  const location = useLocationDetect((match) => {
+    if (!match.provincia) return;
+    const provincia = match.provincia;
+    setForm((f) => ({
+      ...f,
+      provincia,
+      municipio: match.municipio ?? (f.provincia === provincia ? f.municipio : ""),
+      bairro: f.bairro.trim() ? f.bairro : (match.localidade ?? ""),
+    }));
+    setErrors((e) => ({ ...e, provincia: undefined, municipio: undefined }));
+  });
+  const origemLocalizacao = location.state.s === "confirmed" ? "detectada" : "manual";
+
   const selectColor = (id: ColorId) => {
     if (id === color) return;
     navigate({ search: { cor: id }, replace: true, resetScroll: false });
@@ -100,7 +121,15 @@ export function Store() {
   // Em ligações lentas o cliente pode preencher campos antes de o React carregar:
   // aproveita esses valores em vez de os ignorar.
   useEffect(() => {
-    const keys = ["nome", "municipio", "bairro", "endereco", "referencia", "telefone"] as const;
+    const keys = [
+      "nome",
+      "provincia",
+      "municipio",
+      "bairro",
+      "endereco",
+      "referencia",
+      "telefone",
+    ] as const;
     const patch: Partial<DeliveryForm> = {};
     for (const key of keys) {
       const el = document.getElementById(`f-${key}`) as HTMLInputElement | HTMLSelectElement | null;
@@ -138,6 +167,7 @@ export function Store() {
     tamanho: (size ?? "") as Size,
     quantidade: 1,
     pedidoId: (orderId.current ??= newOrderId()),
+    origemLocalizacao,
     website: form.website,
   });
 
@@ -155,6 +185,30 @@ export function Store() {
   const update = (field: keyof DeliveryForm, value: string) => {
     setForm((f) => ({ ...f, [field]: value }));
     if (errors[field as OrderField]) setErrors((e) => ({ ...e, [field]: undefined }));
+  };
+
+  // Mudar de província limpa só o município (que pertence à província anterior).
+  const changeProvincia = (value: string) => {
+    setForm((f) => ({
+      ...f,
+      provincia: value,
+      municipio: isProvincia(value) && isMunicipioDe(value, f.municipio) ? f.municipio : "",
+    }));
+    setErrors((e) => ({ ...e, provincia: undefined, municipio: undefined }));
+    location.reset();
+  };
+
+  const changeMunicipio = (value: string) => {
+    update("municipio", value);
+    // Completar um município que a detecção não identificou não invalida a detecção;
+    // trocar o município detectado já é uma correcção manual.
+    const s = location.state;
+    if (
+      (s.s === "detected" || s.s === "confirmed") &&
+      s.match.municipio &&
+      s.match.municipio !== value
+    )
+      location.reset();
   };
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -175,10 +229,11 @@ export function Store() {
     try {
       const result = await submit({ data: payload() });
       if (result.ok) {
-        trackPixel("InitiateCheckout", pixelParams(color), result.pedidoId);
+        const confirmada = result.cobertura === "confirmada";
+        trackPixel(confirmada ? "InitiateCheckout" : "Lead", pixelParams(color), result.pedidoId);
         setRegistered({
           pedidoId: result.pedidoId,
-          checkoutUrl: result.checkoutUrl,
+          checkoutUrl: confirmada ? result.checkoutUrl : null,
           cor: color,
           tamanho: size!,
         });
@@ -199,7 +254,10 @@ export function Store() {
 
   const help = whatsappLink(`Olá A MÁQUINA! Tenho uma dúvida sobre a ${PRODUCT_NAME}.`);
   const promoActive = isPromoActive();
-  const locationReady = form.municipio !== "";
+  const provincia = isProvincia(form.provincia) ? form.provincia : null;
+  const locationReady = provincia !== null && form.municipio !== "";
+  const coverage = coverageFor(provincia, form.municipio || null);
+  const aConfirmar = coverage.estado === "a-confirmar";
 
   return (
     <>
@@ -313,9 +371,16 @@ export function Store() {
           ) : (
             <form noValidate onSubmit={onSubmit}>
               <h2 className="text-2xl">Dados de entrega</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Entregamos ao domicílio em {DELIVERY_PROVINCE}. Sem conta, sem registo.
-              </p>
+              <p className="mt-1 text-sm text-muted-foreground">Sem conta, sem registo.</p>
+
+              <LocationCard
+                state={location.state}
+                onDetect={location.detect}
+                onConfirm={location.confirm}
+                onCorrect={() => document.getElementById("f-provincia")?.focus()}
+                confirmedLabel={[form.municipio, form.provincia].filter(Boolean).join(", ")}
+              />
+              <RegionNotice provincia={provincia} coverage={coverage} />
 
               <div className="mt-6 grid gap-5 sm:grid-cols-2">
                 <Field
@@ -340,33 +405,39 @@ export function Store() {
                     id="f-provincia"
                     autoComplete="address-level1"
                     value={form.provincia}
-                    onChange={(e) => update("provincia", e.target.value)}
-                    aria-describedby="provincia-nota"
+                    onChange={(e) => changeProvincia(e.target.value)}
+                    aria-invalid={!!errors.provincia}
                     className="h-12 w-full rounded-md border border-input bg-background px-3 text-base md:text-sm"
                   >
-                    <option value={DELIVERY_PROVINCE}>{DELIVERY_PROVINCE}</option>
+                    <option value="" disabled>
+                      Escolhe a província…
+                    </option>
+                    {PROVINCIAS.map((p) => (
+                      <option key={p} value={p}>
+                        {p}
+                      </option>
+                    ))}
                   </select>
-                  <p id="provincia-nota" className="mt-1.5 text-xs text-muted-foreground">
-                    Nesta campanha entregamos apenas em {DELIVERY_PROVINCE}.
-                  </p>
                 </Field>
                 <Field id="municipio" label="Município" error={errors.municipio}>
                   <select
                     id="f-municipio"
                     autoComplete="address-level2"
                     value={form.municipio}
-                    onChange={(e) => update("municipio", e.target.value)}
+                    onChange={(e) => changeMunicipio(e.target.value)}
+                    disabled={!provincia}
                     aria-invalid={!!errors.municipio}
-                    className="h-12 w-full rounded-md border border-input bg-background px-3 text-base md:text-sm"
+                    className="h-12 w-full rounded-md border border-input bg-background px-3 text-base disabled:opacity-60 md:text-sm"
                   >
                     <option value="" disabled>
-                      Escolhe o município…
+                      {provincia ? "Escolhe o município…" : "Escolhe primeiro a província"}
                     </option>
-                    {LUANDA_MUNICIPIOS.map((m) => (
-                      <option key={m} value={m}>
-                        {m}
-                      </option>
-                    ))}
+                    {provincia &&
+                      MUNICIPIOS[provincia].map((m) => (
+                        <option key={m} value={m}>
+                          {m}
+                        </option>
+                      ))}
                   </select>
                 </Field>
                 <Field
@@ -379,7 +450,11 @@ export function Store() {
                     id="f-bairro"
                     autoComplete="address-level3"
                     placeholder={
-                      locationReady ? "Ex.: Benfica, Golfe 2, Morro Bento" : LOCATION_PENDING
+                      locationReady
+                        ? provincia === "Luanda"
+                          ? "Ex.: Benfica, Golfe 2, Morro Bento"
+                          : "Ex.: nome do bairro, zona ou aldeia"
+                        : LOCATION_PENDING
                     }
                     disabled={!locationReady}
                     maxLength={80}
@@ -483,9 +558,9 @@ export function Store() {
                 </div>
                 <p className="shrink-0 font-display text-lg">{formatKz(selected.price)}</p>
               </div>
-              <div className="mt-3 flex justify-between text-sm text-muted-foreground">
+              <div className="mt-3 flex justify-between gap-4 text-sm text-muted-foreground">
                 <span>Entrega</span>
-                <span>Ao domicílio, em {DELIVERY_PROVINCE}</span>
+                <span className="text-right">{deliveryLabel(coverage, provincia)}</span>
               </div>
               <div className="mt-2 flex justify-between font-display text-xl">
                 <span>Total do produto</span>
@@ -501,9 +576,9 @@ export function Store() {
                   Como funciona a entrega?
                 </p>
                 <p className="mt-2 text-muted-foreground">
-                  Preenche os teus dados e confirma o pedido. Depois pagas por referência, no app do
-                  banco ou num ATM, e envias o comprovativo. Após a confirmação do pagamento, a
-                  nossa equipa entra em contacto contigo para combinar a entrega na morada indicada.
+                  {aConfirmar
+                    ? "Preenche os teus dados e envia o pedido. A nossa equipa contacta-te pelo telefone indicado para confirmar a entrega na tua zona, o custo e o prazo. Só pagas depois dessa confirmação."
+                    : "Preenche os teus dados e confirma o pedido. Depois pagas por referência, no app do banco ou num ATM, e envias o comprovativo. Após a confirmação do pagamento, a nossa equipa entra em contacto contigo para combinar a entrega na morada indicada."}
                 </p>
                 <p className="mt-2 text-muted-foreground">
                   Confirma que o telefone está correcto e que a morada tem detalhe suficiente para
@@ -533,6 +608,8 @@ export function Store() {
                   <>
                     <ArrowPathIcon className="animate-spin" /> A registar…
                   </>
+                ) : aConfirmar ? (
+                  "Enviar pedido para confirmação"
                 ) : (
                   "Gerar referência de pagamento"
                 )}
@@ -692,6 +769,47 @@ function PaymentStep({
   onEdit: () => void;
 }) {
   const variant = colorById(registered.cor);
+  const checkoutUrl = registered.checkoutUrl;
+
+  // Entrega ainda sem cobertura confirmada: a equipa verifica primeiro, sem pagamento.
+  if (!checkoutUrl) {
+    return (
+      <div>
+        <p className="flex items-center gap-2 text-sm font-semibold">
+          <span className="grid h-6 w-6 place-items-center rounded-[3px] bg-foreground text-background">
+            <CheckIcon className="h-4 w-4" />
+          </span>
+          Pedido recebido
+        </p>
+        <h2 className="mt-4 text-2xl">Vamos confirmar a entrega</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Pedido <span className="font-semibold text-foreground">#{registered.pedidoId}</span> ·{" "}
+          {variant.name} · Tamanho {registered.tamanho} · {formatKz(variant.price)}
+        </p>
+        <ol className="mt-4 space-y-2 text-sm text-muted-foreground">
+          <li>
+            1. A nossa equipa verifica a entrega em{" "}
+            <span className="text-foreground">{address}</span>.
+          </li>
+          <li>
+            2. Contactamos-te pelo <span className="text-foreground">{phone.trim()}</span> com o
+            custo e o prazo da entrega.
+          </li>
+          <li>
+            3. Se aceitares, enviamos-te a referência de pagamento. Não pagues nada antes disso.
+          </li>
+        </ol>
+        <button
+          type="button"
+          onClick={onEdit}
+          className="mt-6 w-full text-center text-sm text-muted-foreground underline-offset-4 hover:underline"
+        >
+          Corrigir dados de entrega
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div>
       <p className="flex items-center gap-2 text-sm font-semibold">
@@ -727,7 +845,7 @@ function PaymentStep({
       </ol>
       <Button variant="hero" size="xl" className="mt-6 h-14 w-full text-sm" asChild>
         <a
-          href={registered.checkoutUrl}
+          href={checkoutUrl}
           onClick={() =>
             trackPixel("AddPaymentInfo", pixelParams(registered.cor), registered.pedidoId)
           }
@@ -742,6 +860,38 @@ function PaymentStep({
       >
         Corrigir dados de entrega
       </button>
+    </div>
+  );
+}
+
+function deliveryLabel(coverage: Coverage, provincia: string | null) {
+  if (coverage.estado === "a-confirmar") return "Custo e prazo a confirmar pela equipa";
+  if (coverage.estado === "incompleta")
+    return provincia ? "Escolhe o município" : "Escolhe a província";
+  const { metodo, custo, prazo } = coverage.zona;
+  const preco = custo === null ? null : custo === 0 ? "grátis" : formatKz(custo);
+  return [`${metodo}, em ${provincia}`, preco, prazo].filter(Boolean).join(" · ");
+}
+
+function RegionNotice({ provincia, coverage }: { provincia: string | null; coverage: Coverage }) {
+  if (!provincia) return null;
+  if (coverage.estado === "confirmada") {
+    return (
+      <p className="mt-3 flex items-center gap-2 text-sm font-semibold">
+        <CheckIcon className="h-4 w-4 shrink-0" />
+        {coverage.zona.metodo} em {provincia}.
+      </p>
+    );
+  }
+  // Cobertura parcial da província: ainda falta o município para saber.
+  if (coverage.estado === "incompleta") return null;
+  return (
+    <div className="mt-3 text-sm">
+      <p className="font-semibold">Recebe o teu produto na tua província.</p>
+      <p className="mt-1 text-muted-foreground">
+        Estamos a expandir as entregas para outras regiões de Angola. Indica o teu município e a tua
+        morada: a nossa equipa confirma contigo a entrega, o custo e o prazo antes de pagares.
+      </p>
     </div>
   );
 }

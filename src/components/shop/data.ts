@@ -86,28 +86,7 @@ export const SIZE_GUIDE = [
   { size: "XXL", chest: "120 cm", length: "76 cm" },
 ];
 
-// Campanha actual: entregas só na província de Luanda.
-export const DELIVERY_PROVINCE = "Luanda";
-
-// Municípios da província de Luanda (Lei n.º 14/24, divisão político-administrativa).
-export const LUANDA_MUNICIPIOS = [
-  "Belas",
-  "Cacuaco",
-  "Camama",
-  "Cazenga",
-  "Hoji ya Henda",
-  "Ingombota",
-  "Kilamba",
-  "Kilamba Kiaxi",
-  "Maianga",
-  "Mulenvos",
-  "Mussulo",
-  "Rangel",
-  "Samba",
-  "Sambizanga",
-  "Talatona",
-  "Viana",
-] as const;
+// Províncias e municípios: src/lib/angola.ts. Zonas de entrega confirmadas: src/lib/delivery.ts.
 
 // Fim da promoção (hora de Angola). Depois desta data o aviso deixa de aparecer.
 export const PROMO_END = new Date("2026-10-15T23:59:59+01:00");
