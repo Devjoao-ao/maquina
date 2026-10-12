@@ -12,12 +12,12 @@ export const Route = createFileRoute("/")({
     isColorId(search["cor"]) ? { cor: search["cor"] } : {},
   head: () => ({
     meta: [
-      { title: `A MÁQUINA — Camiseta Original por ${formatKz(PRICE)}` },
+      { title: `Camiseta Original A MÁQUINA por ${formatKz(PRICE)}` },
       {
         name: "description",
-        content: `Camiseta original A MÁQUINA por ${formatKz(PRICE)}. Preto, rosa, rosa claro e branco. Tamanhos S a XXL. Entrega ao domicílio em Luanda.`,
+        content: `Camiseta original A MÁQUINA por ${formatKz(PRICE)}. Preto, rosa, rosa claro e branco. Tamanhos S a XXL. Entrega grátis ao domicílio.`,
       },
-      { property: "og:title", content: "A MÁQUINA — Camiseta Original" },
+      { property: "og:title", content: "Camiseta Original A MÁQUINA" },
       {
         property: "og:description",
         content: `Escolhe a tua cor e encomenda por ${formatKz(PRICE)}.`,

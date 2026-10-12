@@ -79,8 +79,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "A MÁQUINA — Streetwear Angolano" },
-      { name: "description", content: "Camisetas A MÁQUINA por 12.000 Kz com entrega grátis." },
+      { title: "A MÁQUINA | Streetwear angolano" },
+      {
+        name: "description",
+        content: "Camisetas A MÁQUINA com entrega grátis em todas as encomendas feitas pelo site.",
+      },
       { name: "author", content: "A MÁQUINA" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -158,6 +161,24 @@ function useScreenshotGuard() {
     };
     const onVisibility = () => (document.visibilityState === "hidden" ? hide() : show());
     const prevent = (e: Event) => e.preventDefault();
+    const isField = (t: EventTarget | null) =>
+      t instanceof HTMLInputElement ||
+      t instanceof HTMLTextAreaElement ||
+      t instanceof HTMLSelectElement;
+    // Copiar texto do site: só dentro dos campos do formulário.
+    const preventCopy = (e: Event) => {
+      if (!isField(e.target)) e.preventDefault();
+    };
+    // Teclados ligados a tablets: tecla Print, imprimir e guardar a página.
+    const onKey = (e: KeyboardEvent) => {
+      const key = e.key.toLowerCase();
+      if (e.key === "PrintScreen") {
+        hide();
+        void navigator.clipboard?.writeText("").catch(() => {});
+        setTimeout(show, 1500);
+      }
+      if ((e.ctrlKey || e.metaKey) && (key === "p" || key === "s")) e.preventDefault();
+    };
 
     document.addEventListener("visibilitychange", onVisibility);
     window.addEventListener("blur", hide);
@@ -166,8 +187,20 @@ function useScreenshotGuard() {
     window.addEventListener("pageshow", show);
     document.addEventListener("contextmenu", prevent);
     document.addEventListener("dragstart", prevent);
+    document.addEventListener("copy", preventCopy);
+    document.addEventListener("cut", preventCopy);
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("keyup", onKey);
+    window.addEventListener("beforeprint", hide);
+    window.addEventListener("afterprint", show);
 
     return () => {
+      document.removeEventListener("copy", preventCopy);
+      document.removeEventListener("cut", preventCopy);
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("keyup", onKey);
+      window.removeEventListener("beforeprint", hide);
+      window.removeEventListener("afterprint", show);
       document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("blur", hide);
       window.removeEventListener("focus", show);

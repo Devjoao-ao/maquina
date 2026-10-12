@@ -7,7 +7,7 @@ import teeRosaThumb from "@/assets/tee-rosa-thumb.webp";
 import teeRosaClaroThumb from "@/assets/tee-rosa-claro-thumb.webp";
 import teeBrancoThumb from "@/assets/tee-branca-thumb.webp";
 
-export const PRODUCT_NAME = "A MÁQUINA — Camiseta Original";
+export const PRODUCT_NAME = "Camiseta Original A MÁQUINA";
 // Preço base. Cada cor tem o seu \`price\`, que tem de ser igual ao valor cobrado no seu checkout.
 export const PRICE = 15000;
 
@@ -27,7 +27,7 @@ export type ColorVariant = {
   image: string;
   thumb: string;
   swatch: string;
-  /** Preço em Kz — tem de coincidir com o valor do checkout desta cor. */
+  /** Preço em Kz: tem de coincidir com o valor do checkout desta cor. */
   price: number;
   /**
    * Link de pagamento desta cor. Para trocar, altera só esta linha.

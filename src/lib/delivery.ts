@@ -9,6 +9,8 @@ import { MUNICIPIOS, type Provincia } from "./angola";
  *
  * Províncias/municípios fora desta lista continuam a poder enviar pedido, mas ficam
  * "a confirmar": a equipa verifica a entrega e só depois o cliente paga.
+ *
+ * O frete é grátis em todas as encomendas feitas pelo site (também "a confirmar").
  */
 export type DeliveryZone = {
   municipios: readonly string[] | null;
@@ -22,7 +24,7 @@ export const DELIVERY_ZONES: Partial<Record<Provincia, DeliveryZone>> = {
   Luanda: {
     municipios: null,
     metodo: "Entrega ao domicílio",
-    custo: null,
+    custo: 0,
     prazo: "no mesmo dia ou no dia seguinte, conforme a hora da compra",
   },
 };

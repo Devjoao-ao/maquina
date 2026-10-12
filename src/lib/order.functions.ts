@@ -72,7 +72,7 @@ export const submitOrder = createServerFn({ method: "POST" })
       criadoEm: new Date().toISOString(),
       estado: confirmada ? "aguarda_pagamento" : "aguarda_confirmacao_entrega",
       estadoPagamento: confirmada ? "pendente" : "nao_iniciado",
-      destino: `${order.provincia} — ${order.municipio}`,
+      destino: `${order.municipio}, ${order.provincia}`,
       produto: PRODUCT_NAME,
       cor: variant.id,
       corNome: variant.name,
@@ -99,7 +99,8 @@ export const submitOrder = createServerFn({ method: "POST" })
           : null,
         cobertura: coverage.estado,
         metodo: confirmada ? coverage.zona.metodo : null,
-        custo: confirmada ? coverage.zona.custo : null,
+        // Frete grátis em todas as encomendas do site.
+        custo: confirmada ? coverage.zona.custo : 0,
         prazo: confirmada ? coverage.zona.prazo : null,
       },
       // Só há link de pagamento quando a entrega está confirmada.

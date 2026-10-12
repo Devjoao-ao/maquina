@@ -9,6 +9,11 @@ import {
   ChevronRightIcon,
   ExclamationCircleIcon,
   InformationCircleIcon,
+  LockClosedIcon,
+  BanknotesIcon,
+  MapPinIcon,
+  ShieldCheckIcon,
+  TruckIcon,
 } from "@heroicons/react/24/outline";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -63,7 +68,7 @@ const pixelParams = (id: ColorId) => {
   const v = colorById(id);
   return {
     content_ids: [v.id],
-    content_name: `${PRODUCT_NAME} — ${v.name}`,
+    content_name: `${PRODUCT_NAME} ${v.name}`,
     content_type: "product" as const,
     value: v.price,
     currency: "AOA" as const,
@@ -281,6 +286,10 @@ export function Store() {
         <div className="min-w-0">
           <h1 className="text-[clamp(1.25rem,4.5vw,1.875rem)] leading-tight">{PRODUCT_NAME}</h1>
           <p className="mt-2 font-display text-2xl">{formatKz(selected.price)}</p>
+          <p className="mt-2 flex items-center gap-2 text-sm font-semibold">
+            <TruckIcon className="h-4 w-4 shrink-0" />
+            Entrega grátis em todas as encomendas feitas pelo site
+          </p>
           {promoActive && (
             <p className="mt-3 inline-flex items-center gap-2 rounded-md bg-promo px-2.5 py-1 text-xs font-bold uppercase tracking-[0.06em] text-promo-foreground">
               <ClockIcon className="h-3.5 w-3.5 shrink-0" />
@@ -564,17 +573,19 @@ export function Store() {
                 <div className="min-w-0 flex-1 text-sm">
                   <p className="truncate font-semibold">{PRODUCT_NAME}</p>
                   <p className="text-muted-foreground">
-                    {selected.name} · Tamanho {size ?? "—"} · 1 unidade
+                    {selected.name}, tamanho {size ?? "por escolher"}, 1 unidade
                   </p>
                 </div>
                 <p className="shrink-0 font-display text-base">{formatKz(selected.price)}</p>
               </div>
               <div className="mt-3 flex justify-between gap-4 text-sm text-muted-foreground">
                 <span>Entrega</span>
-                <span className="text-right">{deliveryLabel(coverage, provincia)}</span>
+                <span className="text-right font-semibold text-foreground">
+                  {deliveryLabel(coverage)}
+                </span>
               </div>
               <div className="mt-2 flex justify-between font-display text-lg">
-                <span>Total do produto</span>
+                <span>Total</span>
                 <span>{formatKz(selected.price)}</span>
               </div>
               {promoActive && (
@@ -588,7 +599,7 @@ export function Store() {
                 </p>
                 <p className="mt-2 text-muted-foreground">
                   {aConfirmar
-                    ? "Preenche os teus dados e envia o pedido. A nossa equipa contacta-te pelo telefone indicado para confirmar a entrega na tua zona, o custo e o prazo. Só pagas depois dessa confirmação."
+                    ? "Preenche os teus dados e envia o pedido. A nossa equipa contacta-te pelo telefone indicado para confirmar a entrega na tua zona e o prazo. A entrega é grátis e só pagas depois dessa confirmação."
                     : "Preenche os teus dados e confirma o pedido. Depois pagas por referência, no app do banco ou num ATM, e envias o comprovativo. Após a confirmação do pagamento, a nossa equipa entra em contacto contigo para combinar a entrega na morada indicada."}
                 </p>
                 {coverage.estado === "confirmada" && coverage.zona.prazo && (
@@ -638,7 +649,9 @@ export function Store() {
         </div>
       </section>
 
-      <footer className="border-t border-border px-4 pb-28 pt-8 text-xs md:pb-8 text-muted-foreground sm:px-6">
+      <SecurePurchase />
+
+      <footer className="border-t border-border px-4 pb-28 pt-6 text-xs md:pb-8 text-muted-foreground sm:px-6">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3">
           <p>© {new Date().getFullYear()} A MÁQUINA</p>
           {help && (
@@ -679,7 +692,7 @@ function Gallery({ colorIndex, onStep }: { colorIndex: number; onStep: (dir: 1 |
         <img
           key={c.id}
           src={c.image}
-          alt={`${PRODUCT_NAME} — ${c.name}`}
+          alt={`${PRODUCT_NAME} ${c.name}`}
           width={1024}
           height={1024}
           loading={i === colorIndex ? "eager" : "lazy"}
@@ -799,8 +812,9 @@ function PaymentStep({
         </p>
         <h2 className="mt-4 text-xl">Vamos confirmar a entrega</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          Pedido <span className="font-semibold text-foreground">#{registered.pedidoId}</span> ·{" "}
-          {variant.name} · Tamanho {registered.tamanho} · {formatKz(variant.price)}
+          Pedido <span className="font-semibold text-foreground">#{registered.pedidoId}</span>
+          <br />
+          {variant.name}, tamanho {registered.tamanho}, {formatKz(variant.price)}
         </p>
         <ol className="mt-4 space-y-2 text-sm text-muted-foreground">
           <li>
@@ -809,7 +823,7 @@ function PaymentStep({
           </li>
           <li>
             2. Contactamos-te pelo <span className="text-foreground">{phone.trim()}</span> com o
-            custo e o prazo da entrega.
+            prazo da entrega (a entrega é grátis).
           </li>
           <li>
             3. Se aceitares, enviamos-te a referência de pagamento. Não pagues nada antes disso.
@@ -836,8 +850,9 @@ function PaymentStep({
       </p>
       <h2 className="mt-4 text-xl">Último passo: pagamento</h2>
       <p className="mt-2 text-sm text-muted-foreground">
-        Pedido <span className="font-semibold text-foreground">#{registered.pedidoId}</span> ·{" "}
-        {variant.name} · Tamanho {registered.tamanho} · {formatKz(variant.price)}
+        Pedido <span className="font-semibold text-foreground">#{registered.pedidoId}</span>
+        <br />
+        {variant.name}, tamanho {registered.tamanho}, {formatKz(variant.price)}
       </p>
       <ol className="mt-4 space-y-2 text-sm text-muted-foreground">
         <li>
@@ -852,8 +867,7 @@ function PaymentStep({
           3. Entregamos a encomenda em casa
           {address && (
             <>
-              {" "}
-              — <span className="text-foreground">{address}</span>
+              , em <span className="text-foreground">{address}</span>
             </>
           )}
           .
@@ -880,13 +894,60 @@ function PaymentStep({
   );
 }
 
-function deliveryLabel(coverage: Coverage, provincia: string | null) {
-  if (coverage.estado === "a-confirmar") return "Custo e prazo a confirmar pela equipa";
-  if (coverage.estado === "incompleta")
-    return provincia ? "Escolhe o município" : "Escolhe a província";
-  const { metodo, custo, prazo } = coverage.zona;
-  const preco = custo === null ? null : custo === 0 ? "grátis" : formatKz(custo);
-  return [`${metodo}, em ${provincia}`, preco, prazo].filter(Boolean).join(" · ");
+// Garantias mostradas no fim da página. Só promessas que o site cumpre de facto:
+// o píxel não recebe dados pessoais e o pagamento é por referência bancária.
+const GUARANTEES = [
+  {
+    icon: LockClosedIcon,
+    title: "Os teus dados estão protegidos",
+    text: "Nome, telefone e morada servem só para entregar a tua encomenda. Não divulgamos nem vendemos os teus dados.",
+  },
+  {
+    icon: BanknotesIcon,
+    title: "Pagamento pelo teu banco",
+    text: "Pagas por referência no app do teu banco ou num ATM. Nunca te pedimos o PIN, códigos de confirmação ou dados do cartão.",
+  },
+  {
+    icon: TruckIcon,
+    title: "Entrega grátis",
+    text: "Em todas as encomendas feitas pelo site. Em Luanda, entregamos no mesmo dia ou no dia seguinte, conforme a hora da compra.",
+  },
+  {
+    icon: MapPinIcon,
+    title: "Localização só para a entrega",
+    text: "Se partilhares a tua localização, serve apenas para o entregador te encontrar.",
+  },
+] as const;
+
+function SecurePurchase() {
+  return (
+    <section className="border-t border-border px-4 py-8 sm:px-6" aria-labelledby="compra-segura">
+      <div className="mx-auto max-w-6xl">
+        <h2 id="compra-segura" className="flex items-center gap-2 text-lg">
+          <ShieldCheckIcon className="h-5 w-5 shrink-0" />
+          Compra segura
+        </h2>
+        <ul className="mt-4 grid gap-4 sm:grid-cols-2">
+          {GUARANTEES.map(({ icon: Icon, title, text }) => (
+            <li key={title} className="flex gap-3">
+              <Icon className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground" />
+              <div>
+                <p className="text-sm font-semibold">{title}</p>
+                <p className="mt-0.5 text-sm text-muted-foreground">{text}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
+function deliveryLabel(coverage: Coverage) {
+  // O prazo aparece em "Como funciona a entrega?"; aqui fica só o essencial.
+  if (coverage.estado === "a-confirmar") return "Grátis, prazo a confirmar";
+  const custo = coverage.estado === "confirmada" ? coverage.zona.custo : 0;
+  return custo === null || custo === 0 ? "Grátis" : formatKz(custo);
 }
 
 function RegionNotice({ provincia, coverage }: { provincia: string | null; coverage: Coverage }) {
@@ -896,7 +957,8 @@ function RegionNotice({ provincia, coverage }: { provincia: string | null; cover
       <p className="mt-3 flex items-start gap-2 text-sm font-semibold">
         <CheckIcon className="mt-0.5 h-4 w-4 shrink-0" />
         <span>
-          {coverage.zona.metodo} em {provincia}
+          {coverage.zona.metodo}
+          {coverage.zona.custo === 0 && " grátis"} em {provincia}
           {coverage.zona.prazo && `, ${coverage.zona.prazo}`}.
         </span>
       </p>
@@ -906,10 +968,10 @@ function RegionNotice({ provincia, coverage }: { provincia: string | null; cover
   if (coverage.estado === "incompleta") return null;
   return (
     <div className="mt-3 text-sm">
-      <p className="font-semibold">Recebe o teu produto na tua província.</p>
+      <p className="font-semibold">Recebe o teu produto na tua província, com entrega grátis.</p>
       <p className="mt-1 text-muted-foreground">
         Estamos a expandir as entregas para outras regiões de Angola. Indica o teu município e a tua
-        morada: a nossa equipa confirma contigo a entrega, o custo e o prazo antes de pagares.
+        morada: a nossa equipa confirma contigo a entrega e o prazo antes de pagares.
       </p>
     </div>
   );

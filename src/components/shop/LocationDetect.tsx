@@ -309,11 +309,11 @@ export function LocationGate({
           A MÁQUINA
         </p>
         <h2 id="location-gate-title" className="mt-1.5 text-xl leading-tight">
-          Recebe em casa, hoje ou amanhã
+          Entrega grátis até à tua porta
         </h2>
         <p className="mt-1.5 text-sm text-muted-foreground">
-          Em Luanda, entregamos no mesmo dia ou no dia seguinte, conforme a hora da compra. Noutras
-          províncias, confirmamos contigo o prazo.
+          Em todas as encomendas feitas pelo site. Em Luanda, recebes no mesmo dia ou no dia
+          seguinte, conforme a hora da compra. Noutras províncias, confirmamos contigo o prazo.
         </p>
 
         <p className="mt-3 text-sm">
