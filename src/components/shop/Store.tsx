@@ -265,7 +265,11 @@ export function Store() {
 
   return (
     <>
-      <LocationGate state={location.state} onDetect={location.detect} />
+      <LocationGate
+        state={location.state}
+        permission={location.permission}
+        onDetect={location.detect}
+      />
 
       {/* PRODUTO */}
       <section className="mx-auto grid max-w-6xl gap-6 px-4 pb-10 pt-4 sm:px-6 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] md:gap-12 md:pt-10">

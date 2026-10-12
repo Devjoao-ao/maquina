@@ -109,30 +109,34 @@ export function useLocationDetect(onDetected: (match: AngolaMatch) => void) {
     }
   }, [geocode]);
 
-  // Em telemóvel, pede a localização logo ao entrar no site (o desktop está bloqueado).
-  const autoAsked = useRef(false);
+  // Ao entrar: se o cliente já autorizou antes, detecta sem perguntar nada.
+  // Caso contrário, o pedido do browser só aparece depois de ele carregar no botão
+  // do ecrã de entrada — um pedido sem contexto parece suspeito e costuma ser bloqueado
+  // para sempre.
+  const [permission, setPermission] = useState<"unknown" | "prompt" | "granted">("unknown");
+  const started = useRef(false);
   useEffect(() => {
-    if (autoAsked.current) return;
-    autoAsked.current = true;
+    if (started.current) return;
+    started.current = true;
     if (!("geolocation" in navigator) || !window.isSecureContext) {
       setState({ s: "unsupported" });
       return;
     }
-    const isPhone = !window.matchMedia("(hover: hover) and (pointer: fine)").matches;
     const permissions = navigator.permissions?.query({ name: "geolocation" });
     if (!permissions) {
-      if (isPhone) detect();
+      setPermission("prompt");
       return;
     }
     permissions
       .then((p) => {
         // Já recusou antes: o browser não voltaria a perguntar.
         if (p.state === "denied") setState((cur) => (cur.s === "idle" ? { s: "denied" } : cur));
-        else if (isPhone) detect();
+        else if (p.state === "granted") {
+          setPermission("granted");
+          void detect();
+        } else setPermission("prompt");
       })
-      .catch(() => {
-        if (isPhone) detect();
-      });
+      .catch(() => setPermission("prompt"));
   }, [detect]);
 
   const confirm = useCallback(
@@ -146,7 +150,7 @@ export function useLocationDetect(onDetected: (match: AngolaMatch) => void) {
     [],
   );
 
-  return { state, coords, detect, confirm, reset };
+  return { state, coords, permission, detect, confirm, reset };
 }
 
 const placeLabel = (m: AngolaMatch) =>
@@ -275,12 +279,22 @@ export function LocationCard({
 }
 
 /**
- * Ecrã de entrada: a primeira coisa que o cliente vê é o pedido de localização.
- * Fecha sozinho quando a localização é detectada, recusada ou indisponível.
+ * Painel de entrada: a primeira coisa que o cliente vê ao abrir o site no telemóvel.
+ * Mostra primeiro o benefício (entrega rápida), depois o pedido, e diz claramente para
+ * que serve a localização. O produto continua visível por trás.
  */
-export function LocationGate({ state, onDetect }: { state: DetectState; onDetect: () => void }) {
+export function LocationGate({
+  state,
+  permission,
+  onDetect,
+}: {
+  state: DetectState;
+  permission: "unknown" | "prompt" | "granted";
+  onDetect: () => void;
+}) {
   const [skipped, setSkipped] = useState(false);
-  if (skipped || (state.s !== "idle" && state.s !== "locating")) return null;
+  if (skipped || permission !== "prompt") return null;
+  if (state.s !== "idle" && state.s !== "locating") return null;
   const locating = state.s === "locating";
 
   return (
@@ -288,50 +302,69 @@ export function LocationGate({ state, onDetect }: { state: DetectState; onDetect
       role="dialog"
       aria-modal="true"
       aria-labelledby="location-gate-title"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-background/95 px-6 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-end bg-foreground/40"
     >
-      <div className="w-full max-w-sm text-center">
-        <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-foreground text-background">
-          <MapPinIcon className="h-7 w-7" />
-        </span>
-        <h2 id="location-gate-title" className="mt-5 text-2xl">
-          Activa a tua localização
+      <div className="w-full rounded-t-2xl bg-background px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-5 shadow-2xl">
+        <p className="text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">
+          A MÁQUINA
+        </p>
+        <h2 id="location-gate-title" className="mt-2 text-2xl leading-tight">
+          Recebe em casa, hoje ou amanhã
         </h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Assim o nosso entregador encontra-te com facilidade e entrega o teu pedido no sítio certo.
+        <p className="mt-1.5 text-sm text-muted-foreground">
+          Em Luanda, entregamos no mesmo dia ou no dia seguinte, conforme a hora da compra. Noutras
+          províncias, confirmamos contigo o prazo.
         </p>
-        <p className="mt-3 rounded-md bg-muted px-3 py-2.5 text-sm">
-          <span className="font-semibold">Em Luanda</span>, entregamos no mesmo dia ou no dia
-          seguinte, conforme a hora da compra.
+
+        <p className="mt-4 text-sm">
+          Partilha a tua localização para vermos se entregamos na tua zona e para o entregador
+          chegar até ti sem te ligar a pedir direcções.
         </p>
-        <p className="mt-3 text-xs text-muted-foreground">
-          Quando o telemóvel perguntar, escolhe “Permitir”.
-        </p>
+        <ul className="mt-3 space-y-1.5 text-sm text-muted-foreground">
+          <li className="flex items-start gap-2">
+            <CheckIcon className="mt-0.5 h-4 w-4 shrink-0 text-foreground" />
+            Usamos a localização só para a entrega.
+          </li>
+          <li className="flex items-start gap-2">
+            <CheckIcon className="mt-0.5 h-4 w-4 shrink-0 text-foreground" />
+            Não pedimos pagamento nem dados bancários agora.
+          </li>
+          <li className="flex items-start gap-2">
+            <CheckIcon className="mt-0.5 h-4 w-4 shrink-0 text-foreground" />
+            Pagas por referência, no app do banco ou num ATM, só depois de confirmares o pedido.
+          </li>
+        </ul>
+
         <Button
           type="button"
           variant="hero"
           size="xl"
-          className="mt-6 h-14 w-full text-sm"
+          className="mt-5 h-14 w-full text-sm"
           onClick={onDetect}
           disabled={locating}
           aria-busy={locating}
         >
           {locating ? (
             <>
-              <ArrowPathIcon className="animate-spin" /> A detectar…
+              <ArrowPathIcon className="animate-spin" /> A localizar…
             </>
           ) : (
             <>
-              <MapPinIcon /> Activar localização
+              <MapPinIcon /> Partilhar a minha localização
             </>
           )}
         </Button>
+        <p className="mt-2 text-center text-xs text-muted-foreground">
+          {locating
+            ? "Se o telemóvel perguntar, escolhe “Permitir”."
+            : "O telemóvel vai pedir autorização. Escolhe “Permitir”."}
+        </p>
         <button
           type="button"
           onClick={() => setSkipped(true)}
-          className="mt-4 text-sm text-muted-foreground underline-offset-4 hover:underline"
+          className="mt-3 h-11 w-full text-sm font-medium underline underline-offset-4"
         >
-          Agora não
+          Ver o produto e escrever a morada à mão
         </button>
       </div>
     </div>
