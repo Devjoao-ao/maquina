@@ -18,7 +18,7 @@ import { trackPixel } from "@/lib/pixel";
 import { newOrderId, orderSchema, type OrderField, type OrderInput } from "@/lib/order-schema";
 import { MUNICIPIOS, PROVINCIAS, isMunicipioDe, isProvincia } from "@/lib/angola";
 import { coverageFor, type Coverage } from "@/lib/delivery";
-import { LocationCard, useLocationDetect } from "./LocationDetect";
+import { LocationCard, LocationGate, useLocationDetect } from "./LocationDetect";
 import {
   COLORS,
   PRODUCT_NAME,
@@ -261,6 +261,8 @@ export function Store() {
 
   return (
     <>
+      <LocationGate state={location.state} onDetect={location.detect} />
+
       {/* PRODUTO */}
       <section className="mx-auto grid max-w-6xl gap-6 px-4 pb-10 pt-4 sm:px-6 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] md:gap-12 md:pt-10">
         <div className="min-w-0 md:sticky md:top-6 md:self-start">

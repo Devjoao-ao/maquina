@@ -35,20 +35,6 @@ export function useLocationDetect(onDetected: (match: AngolaMatch) => void) {
   const onDetectedRef = useRef(onDetected);
   onDetectedRef.current = onDetected;
 
-  useEffect(() => {
-    if (!("geolocation" in navigator) || !window.isSecureContext) {
-      setState({ s: "unsupported" });
-      return;
-    }
-    // Se o cliente já recusou antes, não mostra o botão (o browser não voltaria a perguntar).
-    navigator.permissions
-      ?.query({ name: "geolocation" })
-      .then((p) => {
-        if (p.state === "denied") setState((cur) => (cur.s === "idle" ? { s: "denied" } : cur));
-      })
-      .catch(() => {});
-  }, []);
-
   const detect = useCallback(() => {
     if (busy.current) return;
     busy.current = true;
@@ -97,6 +83,32 @@ export function useLocationDetect(onDetected: (match: AngolaMatch) => void) {
       GEO_OPTIONS,
     );
   }, [geocode]);
+
+  // Em telemóvel, pede a localização logo ao entrar no site (o desktop está bloqueado).
+  const autoAsked = useRef(false);
+  useEffect(() => {
+    if (autoAsked.current) return;
+    autoAsked.current = true;
+    if (!("geolocation" in navigator) || !window.isSecureContext) {
+      setState({ s: "unsupported" });
+      return;
+    }
+    const isPhone = !window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    const permissions = navigator.permissions?.query({ name: "geolocation" });
+    if (!permissions) {
+      if (isPhone) detect();
+      return;
+    }
+    permissions
+      .then((p) => {
+        // Já recusou antes: o browser não voltaria a perguntar.
+        if (p.state === "denied") setState((cur) => (cur.s === "idle" ? { s: "denied" } : cur));
+        else if (isPhone) detect();
+      })
+      .catch(() => {
+        if (isPhone) detect();
+      });
+  }, [detect]);
 
   const confirm = useCallback(
     () => setState((cur) => (cur.s === "detected" ? { s: "confirmed", match: cur.match } : cur)),
@@ -223,6 +235,64 @@ export function LocationCard({
           </button>
         </>
       )}
+    </div>
+  );
+}
+
+/**
+ * Ecrã de entrada: a primeira coisa que o cliente vê é o pedido de localização.
+ * Fecha sozinho quando a localização é detectada, recusada ou indisponível.
+ */
+export function LocationGate({ state, onDetect }: { state: DetectState; onDetect: () => void }) {
+  const [skipped, setSkipped] = useState(false);
+  if (skipped || (state.s !== "idle" && state.s !== "locating")) return null;
+  const locating = state.s === "locating";
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="location-gate-title"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-background/95 px-6 backdrop-blur-sm"
+    >
+      <div className="w-full max-w-sm text-center">
+        <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-foreground text-background">
+          <MapPinIcon className="h-7 w-7" />
+        </span>
+        <h2 id="location-gate-title" className="mt-5 text-2xl">
+          Activa a tua localização
+        </h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Assim vemos as opções de entrega na tua zona. Quando o telemóvel perguntar, escolhe
+          “Permitir”.
+        </p>
+        <Button
+          type="button"
+          variant="hero"
+          size="xl"
+          className="mt-6 h-14 w-full text-sm"
+          onClick={onDetect}
+          disabled={locating}
+          aria-busy={locating}
+        >
+          {locating ? (
+            <>
+              <ArrowPathIcon className="animate-spin" /> A detectar…
+            </>
+          ) : (
+            <>
+              <MapPinIcon /> Activar localização
+            </>
+          )}
+        </Button>
+        <button
+          type="button"
+          onClick={() => setSkipped(true)}
+          className="mt-4 text-sm text-muted-foreground underline-offset-4 hover:underline"
+        >
+          Agora não
+        </button>
+      </div>
     </div>
   );
 }
