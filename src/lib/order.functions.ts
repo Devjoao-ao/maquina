@@ -88,6 +88,15 @@ export const submitOrder = createServerFn({ method: "POST" })
         endereco: order.endereco,
         referencia: order.referencia,
         origemLocalizacao: order.origemLocalizacao,
+        // Ponto exacto para o entregador (abre no Google Maps).
+        localizacao: order.localizacao
+          ? {
+              lat: order.localizacao.lat,
+              lon: order.localizacao.lon,
+              precisaoMetros: order.localizacao.precisao,
+              mapa: `https://www.google.com/maps?q=${order.localizacao.lat},${order.localizacao.lon}`,
+            }
+          : null,
         cobertura: coverage.estado,
         metodo: confirmada ? coverage.zona.metodo : null,
         custo: confirmada ? coverage.zona.custo : null,

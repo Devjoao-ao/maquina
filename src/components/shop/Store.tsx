@@ -112,6 +112,9 @@ export function Store() {
     setErrors((e) => ({ ...e, provincia: undefined, municipio: undefined }));
   });
   const origemLocalizacao = location.state.s === "confirmed" ? "detectada" : "manual";
+  // O ponto GPS só segue se o cliente não corrigiu a zona para outro sítio
+  // (ao corrigir, a detecção volta a "idle").
+  const localizacao = location.state.s === "idle" ? undefined : (location.coords ?? undefined);
 
   const selectColor = (id: ColorId) => {
     if (id === color) return;
@@ -168,6 +171,7 @@ export function Store() {
     quantidade: 1,
     pedidoId: (orderId.current ??= newOrderId()),
     origemLocalizacao,
+    localizacao,
     website: form.website,
   });
 
@@ -381,6 +385,7 @@ export function Store() {
                 onConfirm={location.confirm}
                 onCorrect={() => document.getElementById("f-provincia")?.focus()}
                 confirmedLabel={[form.municipio, form.provincia].filter(Boolean).join(", ")}
+                hasCoords={localizacao !== undefined}
               />
               <RegionNotice provincia={provincia} coverage={coverage} />
 
@@ -582,6 +587,11 @@ export function Store() {
                     ? "Preenche os teus dados e envia o pedido. A nossa equipa contacta-te pelo telefone indicado para confirmar a entrega na tua zona, o custo e o prazo. Só pagas depois dessa confirmação."
                     : "Preenche os teus dados e confirma o pedido. Depois pagas por referência, no app do banco ou num ATM, e envias o comprovativo. Após a confirmação do pagamento, a nossa equipa entra em contacto contigo para combinar a entrega na morada indicada."}
                 </p>
+                {coverage.estado === "confirmada" && coverage.zona.prazo && (
+                  <p className="mt-2 text-muted-foreground">
+                    Em {provincia}, entregamos {coverage.zona.prazo}.
+                  </p>
+                )}
                 <p className="mt-2 text-muted-foreground">
                   Confirma que o telefone está correcto e que a morada tem detalhe suficiente para
                   te encontrarmos.
@@ -879,9 +889,12 @@ function RegionNotice({ provincia, coverage }: { provincia: string | null; cover
   if (!provincia) return null;
   if (coverage.estado === "confirmada") {
     return (
-      <p className="mt-3 flex items-center gap-2 text-sm font-semibold">
-        <CheckIcon className="h-4 w-4 shrink-0" />
-        {coverage.zona.metodo} em {provincia}.
+      <p className="mt-3 flex items-start gap-2 text-sm font-semibold">
+        <CheckIcon className="mt-0.5 h-4 w-4 shrink-0" />
+        <span>
+          {coverage.zona.metodo} em {provincia}
+          {coverage.zona.prazo && `, ${coverage.zona.prazo}`}.
+        </span>
       </p>
     );
   }

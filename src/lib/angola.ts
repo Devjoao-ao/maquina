@@ -522,7 +522,18 @@ export function placeFromNominatim(address: Record<string, unknown> | undefined)
   return {
     countryCode: pick("country_code")[0] ?? null,
     state: pick("state", "province", "region")[0] ?? null,
-    municipalityNames: pick("city_district", "town", "city", "municipality", "county", "village"),
+    // Em Luanda o mapa ainda usa "Município de Luanda"; o bairro (ex.: Talatona, Viana)
+    // costuma coincidir com o município actual, por isso entra no fim da lista.
+    municipalityNames: pick(
+      "city_district",
+      "town",
+      "city",
+      "municipality",
+      "county",
+      "village",
+      "suburb",
+      "quarter",
+    ),
     locality: pick("suburb", "quarter", "neighbourhood", "village", "hamlet")[0] ?? null,
   };
 }

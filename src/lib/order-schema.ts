@@ -41,6 +41,14 @@ export const orderSchema = z
     pedidoId: z.string().regex(/^[A-Z0-9]{8}$/),
     // Como a província/município foram escolhidos: detecção confirmada pelo cliente ou manual.
     origemLocalizacao: z.enum(["detectada", "manual"]).default("manual"),
+    // Ponto GPS do cliente (autorizado por ele), para o entregador o encontrar.
+    localizacao: z
+      .object({
+        lat: z.number().finite().min(-90).max(90),
+        lon: z.number().finite().min(-180).max(180),
+        precisao: z.number().finite().min(0).max(1_000_000),
+      })
+      .optional(),
     // Campo escondido (anti-spam). Pessoas reais deixam-no vazio.
     website: z.string().max(0).optional(),
   })

@@ -19,7 +19,12 @@ export type DeliveryZone = {
 };
 
 export const DELIVERY_ZONES: Partial<Record<Provincia, DeliveryZone>> = {
-  Luanda: { municipios: null, metodo: "Entrega ao domicílio", custo: null, prazo: null },
+  Luanda: {
+    municipios: null,
+    metodo: "Entrega ao domicílio",
+    custo: null,
+    prazo: "no mesmo dia ou no dia seguinte, conforme a hora da compra",
+  },
 };
 
 export type Coverage =

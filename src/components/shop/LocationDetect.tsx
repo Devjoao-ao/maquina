@@ -7,6 +7,9 @@ import type { LocationMatch } from "@/lib/angola";
 
 type AngolaMatch = Extract<LocationMatch, { kind: "angola" }>;
 
+/** Ponto exacto do cliente, enviado com o pedido para o entregador o encontrar. */
+export type Coords = { lat: number; lon: number; precisao: number };
+
 export type DetectState =
   | { s: "idle" }
   | { s: "unsupported" }
@@ -17,71 +20,93 @@ export type DetectState =
   | { s: "denied" }
   | { s: "failed"; message: string };
 
-const GEO_OPTIONS: PositionOptions = {
-  // Precisão de rede/Wi-Fi chega para a província e o município; não exige GPS.
+// GPS para o entregador encontrar a morada; se demorar, tenta com a rede/Wi-Fi.
+const GPS_OPTIONS: PositionOptions = {
+  enableHighAccuracy: true,
+  timeout: 15_000,
+  maximumAge: 60_000,
+};
+const NETWORK_OPTIONS: PositionOptions = {
   enableHighAccuracy: false,
   timeout: 12_000,
   maximumAge: 5 * 60_000,
 };
 
+const locate = (options: PositionOptions) =>
+  new Promise<GeolocationPosition>((resolve, reject) =>
+    navigator.geolocation.getCurrentPosition(resolve, reject, options),
+  );
+
+const isGeoError = (e: unknown): e is GeolocationPositionError =>
+  typeof e === "object" && e !== null && "code" in e && "PERMISSION_DENIED" in e;
+
 /**
- * Detecção da localização a pedido do cliente. As coordenadas só existem dentro de
- * `detect()`: vão para o servidor (que as arredonda) e não ficam guardadas.
+ * Detecção da localização do cliente. As coordenadas ficam só em memória e seguem com
+ * o pedido (para o entregador); a geocodificação recebe-as arredondadas.
  */
 export function useLocationDetect(onDetected: (match: AngolaMatch) => void) {
   const geocode = useServerFn(reverseGeocode);
   const [state, setState] = useState<DetectState>({ s: "idle" });
+  const [coords, setCoords] = useState<Coords | null>(null);
   const busy = useRef(false);
   const onDetectedRef = useRef(onDetected);
   onDetectedRef.current = onDetected;
 
-  const detect = useCallback(() => {
+  const detect = useCallback(async () => {
     if (busy.current) return;
     busy.current = true;
     setState({ s: "locating" });
 
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        try {
-          const result = await geocode({
-            data: { lat: pos.coords.latitude, lon: pos.coords.longitude },
-          });
-          if (!result.ok) {
-            setState({
-              s: "failed",
-              message:
-                result.reason === "sem-resultado"
-                  ? "Não conseguimos identificar a tua zona."
-                  : "O serviço de localização não respondeu.",
-            });
-          } else if (result.match.kind === "fora-de-angola") {
-            setState({
-              s: "failed",
-              message: "A localização detectada não é em Angola.",
-            });
-          } else {
-            setState({ s: "detected", match: result.match });
-            onDetectedRef.current(result.match);
-          }
-        } catch {
-          setState({ s: "failed", message: "Sem ligação ao serviço de localização." });
-        } finally {
-          busy.current = false;
-        }
-      },
-      (err) => {
-        busy.current = false;
-        if (err.code === err.PERMISSION_DENIED) setState({ s: "denied" });
-        else if (err.code === err.TIMEOUT)
-          setState({ s: "failed", message: "A localização demorou demasiado." });
-        else
-          setState({
-            s: "failed",
-            message: "Localização indisponível (o GPS ou a localização podem estar desligados).",
-          });
-      },
-      GEO_OPTIONS,
-    );
+    let pos: GeolocationPosition;
+    try {
+      pos = await locate(GPS_OPTIONS).catch((err: unknown) => {
+        if (isGeoError(err) && err.code === err.PERMISSION_DENIED) throw err;
+        return locate(NETWORK_OPTIONS);
+      });
+    } catch (err) {
+      busy.current = false;
+      if (isGeoError(err) && err.code === err.PERMISSION_DENIED) setState({ s: "denied" });
+      else
+        setState({
+          s: "failed",
+          message:
+            isGeoError(err) && err.code === err.TIMEOUT
+              ? "A localização demorou demasiado."
+              : "Localização indisponível (o GPS ou a localização podem estar desligados).",
+        });
+      return;
+    }
+
+    const { latitude, longitude, accuracy } = pos.coords;
+    // O ponto fica guardado mesmo que a identificação da zona falhe: o entregador usa-o.
+    setCoords({
+      lat: Number(latitude.toFixed(5)),
+      lon: Number(longitude.toFixed(5)),
+      precisao: Math.round(accuracy),
+    });
+
+    try {
+      const result = await geocode({ data: { lat: latitude, lon: longitude } });
+      if (!result.ok) {
+        setState({
+          s: "failed",
+          message:
+            result.reason === "sem-resultado"
+              ? "Não conseguimos identificar a tua zona."
+              : "O serviço de localização não respondeu.",
+        });
+      } else if (result.match.kind === "fora-de-angola") {
+        setCoords(null);
+        setState({ s: "failed", message: "A localização detectada não é em Angola." });
+      } else {
+        setState({ s: "detected", match: result.match });
+        onDetectedRef.current(result.match);
+      }
+    } catch {
+      setState({ s: "failed", message: "Sem ligação ao serviço de localização." });
+    } finally {
+      busy.current = false;
+    }
   }, [geocode]);
 
   // Em telemóvel, pede a localização logo ao entrar no site (o desktop está bloqueado).
@@ -121,7 +146,7 @@ export function useLocationDetect(onDetected: (match: AngolaMatch) => void) {
     [],
   );
 
-  return { state, detect, confirm, reset };
+  return { state, coords, detect, confirm, reset };
 }
 
 const placeLabel = (m: AngolaMatch) =>
@@ -133,8 +158,11 @@ export function LocationCard({
   onConfirm,
   onCorrect,
   confirmedLabel,
+  hasCoords,
 }: {
   state: DetectState;
+  /** O ponto GPS foi obtido (segue com o pedido para o entregador). */
+  hasCoords: boolean;
   /** O que está escolhido no formulário (a fonte de verdade depois de confirmar). */
   confirmedLabel: string;
   onDetect: () => void;
@@ -149,7 +177,7 @@ export function LocationCard({
         <>
           <p className="font-semibold">Vamos entregar o teu pedido onde estiveres.</p>
           <p className="mt-1 text-muted-foreground">
-            Identifica a tua localização para vermos as opções de entrega na tua região.
+            Activa a localização para o nosso entregador te encontrar com facilidade.
           </p>
           <Button
             type="button"
@@ -170,7 +198,7 @@ export function LocationCard({
             )}
           </Button>
           <p className="mt-2 text-xs text-muted-foreground">
-            Opcional. Também podes escolher a província e o município abaixo.
+            Também podes escolher a província e o município abaixo.
           </p>
         </>
       ) : state.s === "detected" ? (
@@ -214,7 +242,8 @@ export function LocationCard({
         <p className="flex items-center gap-2">
           <CheckIcon className="h-4 w-4 shrink-0" />
           <span>
-            Localização confirmada: <span className="font-semibold">{confirmedLabel}</span>.
+            Localização confirmada: <span className="font-semibold">{confirmedLabel}</span>. O
+            entregador vai ter o teu ponto no mapa.
           </span>
         </p>
       ) : state.s === "denied" ? (
@@ -223,6 +252,12 @@ export function LocationCard({
         <p className="text-muted-foreground">{manual}</p>
       ) : (
         <>
+          {hasCoords && (
+            <p className="mb-1 flex items-center gap-2 font-semibold">
+              <CheckIcon className="h-4 w-4 shrink-0" />
+              Localização guardada para o entregador.
+            </p>
+          )}
           <p className="text-muted-foreground">
             {state.message} {manual}
           </p>
@@ -263,8 +298,14 @@ export function LocationGate({ state, onDetect }: { state: DetectState; onDetect
           Activa a tua localização
         </h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          Assim vemos as opções de entrega na tua zona. Quando o telemóvel perguntar, escolhe
-          “Permitir”.
+          Assim o nosso entregador encontra-te com facilidade e entrega o teu pedido no sítio certo.
+        </p>
+        <p className="mt-3 rounded-md bg-muted px-3 py-2.5 text-sm">
+          <span className="font-semibold">Em Luanda</span>, entregamos no mesmo dia ou no dia
+          seguinte, conforme a hora da compra.
+        </p>
+        <p className="mt-3 text-xs text-muted-foreground">
+          Quando o telemóvel perguntar, escolhe “Permitir”.
         </p>
         <Button
           type="button"

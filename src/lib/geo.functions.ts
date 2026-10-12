@@ -7,8 +7,8 @@ import { isSameOrigin } from "./same-origin.server";
  * Geocodificação inversa (coordenadas -> província/município) via Nominatim (OpenStreetMap).
  *
  * - Só corre quando o cliente carrega em "Detectar a minha localização" e autoriza.
- * - As coordenadas são arredondadas (~100 m) antes de sair do servidor e não são guardadas
- *   nem registadas nos logs.
+ * - Aqui as coordenadas são arredondadas (~100 m) antes de sair do servidor e não são
+ *   registadas nos logs. O ponto exacto só segue com o pedido, para o entregador.
  * - Política do Nominatim: máx. 1 pedido/s e User-Agent identificável. Para tráfego alto,
  *   aponta GEOCODER_URL para outra instância compatível (mesma API /reverse).
  */
