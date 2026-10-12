@@ -1,5 +1,5 @@
 // Píxel do Facebook (Meta). O código base é injectado em __root.tsx.
-export const FB_PIXEL_ID = "1639791784443358";
+export const FB_PIXEL_ID = "1844946919830502";
 
 // Código base oficial do Meta, com PageView.
 export const FB_PIXEL_SCRIPT = `!function(f,b,e,v,n,t,s)
